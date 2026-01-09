@@ -1,5 +1,5 @@
-export const tableConfig = {
+export const TABLE_CONFIG = {
     queryParam: 'table',
     defaultTable: 'users',
-    tables: ['users', 'companies'],
+    tables: ['users', 'companies', 'products'],
 }
