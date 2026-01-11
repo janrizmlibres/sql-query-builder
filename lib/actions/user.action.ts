@@ -1,17 +1,23 @@
+"use server";
+
 import { Prisma, User } from "@/app/generated/prisma/client";
 import prisma from "@/lib/prisma";
 import handleError from "@/lib/handlers/error";
+import { RuleGroupType, formatQuery } from "react-querybuilder";
 
 export const getUsers = async (
-  params: PaginatedSearchParams
+  sqlQuery?: RuleGroupType | null,
+  params?: PaginatedSearchParams,
 ): Promise<ActionResponse<PaginatedResponse<User>>> => {
-  const { page = 1, pageSize = 10, query, filter } = params;
+  const { page = 1, pageSize = 10, query, filter } = params || {};
   const skip = (page - 1) * pageSize;
   const take = pageSize;
 
-  const where: Prisma.UserWhereInput = {};
-
-  if (query) {
+  let where: Prisma.UserWhereInput = {};
+  
+  if (sqlQuery) {
+    where = formatQuery(sqlQuery, { format: 'prisma', parseNumbers: true });
+  } else if (query) {
     where.OR = [
       { name: { contains: query, mode: Prisma.QueryMode.insensitive } },
       { email: { contains: query, mode: Prisma.QueryMode.insensitive } },

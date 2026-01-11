@@ -1,8 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Field, QueryBuilder, RuleGroupType, defaultOperators } from 'react-querybuilder';
-import 'react-querybuilder/dist/query-builder.css';
+import { useDebounce } from 'use-debounce';
+import { saveQuery } from '@/lib/actions/query.action';
+import { QUERY_CONFIG } from '@/constants';
+import { ModelFactory } from '@/lib/strategies/model.strategy';
 
 const getOperators = (_fieldName: string, { fieldData }: { fieldData: Field }) => {
   switch (fieldData.datatype) {
@@ -54,21 +58,58 @@ const getOperators = (_fieldName: string, { fieldData }: { fieldData: Field }) =
   return defaultOperators;
 };
 
-const defaultQuery: RuleGroupType = {
-  combinator: 'and',
-  rules: [],
-}
-
 type Props = {
+  currentTable: string;
   fields: Field[];
+  initialQuery?: RuleGroupType | null;
 }
+  
+const QueryBuilderPanel = ({ currentTable, fields, initialQuery }: Props) => {
+  const { queryParam, defaultQuery, debounceTime } = QUERY_CONFIG;
 
-const QueryBuilderPanel = ({ fields }: Props) => {
-  const [query, setQuery] = useState<RuleGroupType>(defaultQuery);
+  const [query, setQuery] = useState<RuleGroupType>(initialQuery || defaultQuery);
+  const [debouncedQuery] = useDebounce(query, debounceTime);
+
+  const lastHash = useRef<string | null>(null);
+
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const syncQuery = async () => {
+      const params = new URLSearchParams(searchParams.toString());
+
+      if (debouncedQuery.rules.length === 0) {
+        params.delete(queryParam);
+      } else {
+        const hash = await saveQuery(debouncedQuery);
+        params.set(queryParam, hash);
+      }
+
+      const currentHash = params.get(queryParam);
+      if (currentHash === lastHash.current) return;
+      lastHash.current = currentHash;
+
+      router.push(`${pathname}?${params.toString()}`);
+    };
+
+    syncQuery();
+  }, [debouncedQuery, pathname, router, searchParams, queryParam]);
+
+  const model = ModelFactory.getModel(currentTable);
+
+  const fieldsWithValidators = model.getQueryFieldsWithValidators
+    ? model.getQueryFieldsWithValidators(fields) : fields;
 
   return (
     <div>
-      <QueryBuilder fields={fields} query={query} onQueryChange={setQuery} getOperators={getOperators} />
+      <QueryBuilder
+        fields={fieldsWithValidators}
+        query={query}
+        onQueryChange={setQuery}
+        getOperators={getOperators}
+      />
     </div>
   );
 };

@@ -1,10 +1,13 @@
 'use client';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { TABLE_CONFIG } from '@/constants';
+import { QUERY_CONFIG, TABLE_CONFIG } from '@/constants';
 import { capitalize } from '@/lib/utils';
+import { useRef } from 'react';
 
 const TableSelector = () => {
+  const lastTable = useRef<string | null>(null);
+
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -17,6 +20,12 @@ const TableSelector = () => {
 
     const params = new URLSearchParams(searchParams.toString());
     params.set(queryParam, newTable);
+
+    if (newTable !== lastTable.current) {
+      params.delete(QUERY_CONFIG.queryParam);
+    }
+
+    lastTable.current = newTable;
 
     router.push(`${pathname}?${params.toString()}`);
   };

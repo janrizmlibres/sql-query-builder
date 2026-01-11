@@ -3,7 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import QueryBuilderActions from "./QueryBuilderActions";
-import { Field } from "react-querybuilder";
+import { Field, RuleGroupType } from "react-querybuilder";
 
 const QueryBuilderPanel = dynamic(() => import("./QueryBuilderPanel"), {
   ssr: false,
@@ -12,15 +12,24 @@ const QueryBuilderPanel = dynamic(() => import("./QueryBuilderPanel"), {
 type Props = {
   dataCount: number;
   fields: Field[];
+  initialQuery?: RuleGroupType | null;
+  currentTable: string;
 }
 
-const QueryBuilderArea = ({ dataCount, fields }: Props) => {
+const QueryBuilderArea = ({ dataCount, fields, initialQuery, currentTable }: Props) => {
   const [showFilter, setShowFilter] = useState(true);
 
   return (
     <div>
       <QueryBuilderActions dataCount={dataCount} showFilter={showFilter} setShowFilter={setShowFilter} />
-      {showFilter && <QueryBuilderPanel fields={fields} />}
+      {showFilter && (
+        <QueryBuilderPanel
+          key={currentTable}
+          currentTable={currentTable}
+          fields={fields}
+          initialQuery={initialQuery}
+        />
+      )}
     </div>
   )
 };

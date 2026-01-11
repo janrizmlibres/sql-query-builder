@@ -10,14 +10,10 @@ type ActionResponse<T = null> = {
 
 type ErrorResponse = ActionResponse<undefined> & { success: false };
 
-interface PaginatedResponse<T> {
-  items: T[];
-  isNext: boolean;
-}
-
 interface RouteParams {
   searchParams: Promise<{
-    table: string;
+    table?: string;
+    q?: string;
   }>;
 }
 
@@ -27,4 +23,9 @@ interface PaginatedSearchParams {
   query?: string;
   filter?: string;
   sort?: string;
+}
+
+interface PaginatedResponse<T> {
+  items: T[];
+  isNext: boolean;
 }

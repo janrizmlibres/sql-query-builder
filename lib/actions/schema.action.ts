@@ -1,3 +1,5 @@
+"use server";
+
 import prisma from "@/lib/prisma";
 import { Field } from "react-querybuilder";
 import { NotFoundError } from "../http-errors";
@@ -10,6 +12,15 @@ export const getTableFields = async (dbTableName: string): Promise<Field[]> => {
         'value', column_name,
         'label', column_name,
         'datatype', CASE
+          WHEN data_type LIKE '%char%' OR data_type = 'text' THEN 'text'
+          WHEN data_type IN ('integer', 'bigint', 'smallint', 'decimal', 'numeric', 'real', 'double precision') THEN 'number'
+          WHEN data_type = 'date' THEN 'date'
+          WHEN data_type LIKE 'timestamp%' THEN 'datetime-local'
+          WHEN data_type LIKE 'time%' THEN 'time'
+          WHEN data_type = 'boolean' THEN 'boolean'
+          ELSE 'text'
+        END,
+        'inputType', CASE
           WHEN data_type LIKE '%char%' OR data_type = 'text' THEN 'text'
           WHEN data_type IN ('integer', 'bigint', 'smallint', 'decimal', 'numeric', 'real', 'double precision') THEN 'number'
           WHEN data_type = 'date' THEN 'date'

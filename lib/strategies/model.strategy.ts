@@ -2,29 +2,80 @@ import { getUsers } from "@/lib/actions/user.action";
 import { getCompanies } from "@/lib/actions/company.action";
 import { getProducts } from "@/lib/actions/product.action";
 import { Company, Product, User } from "@/app/generated/prisma/client";
+import { defaultOperators, Field, RuleGroupType, RuleType, ValidationResult } from "react-querybuilder";
+import { getTableFields } from "../actions/schema.action";
 
-interface ModelStrategy<T> {
-  fetchData: (params: PaginatedSearchParams) => Promise<ActionResponse<PaginatedResponse<T>>>;
+export interface ModelStrategy<T> {
+  fetchData: (sqlQuery?: RuleGroupType | null, params?: PaginatedSearchParams) => Promise<ActionResponse<PaginatedResponse<T>>>;
   getColumns: () => (keyof T)[];
-  getTableName: () => string;
+  getQueryFields: () => Promise<Field[]>;
+  getQueryFieldsWithValidators?: (fields: Field[]) => Field[];
 }
 
 class UserModel implements ModelStrategy<User> {
   fetchData = getUsers;
   getColumns = (): (keyof User)[] => ["name", "email", "age", "gender", "isAdmin", "createdAt", "updatedAt"];
-  getTableName = () => "User";
+  getQueryFields = async () => {
+    const fields = await getTableFields("User");
+
+    return fields.map(field => {
+      switch (field.name) {
+        case "email":
+          return {
+            ...field,
+            operators: [
+              { name: '=', label: 'is' },
+              { name: '!=', label: 'is not' },
+              ...defaultOperators.filter(op =>
+                [
+                  'contains',
+                  'beginsWith',
+                  'endsWith',
+                  'doesNotContain',
+                  'doesNotBeginWith',
+                  'doesNotEndWith',
+                  'in',
+                  'notIn',
+                ].includes(op.name)
+              ),
+            ],
+          }
+        default:
+          return field;
+      }
+    });
+  };
+  getQueryFieldsWithValidators = (fields: Field[]) => {
+    return fields.map(field => {
+      if (field.name !== 'age') return field;
+
+      return {
+        ...field,
+        validator: (r: RuleType): ValidationResult => {
+          const invalid = r.value == null || r.value === "";
+          return { valid: !invalid, reasons: invalid ? ["Value is required"] : undefined };
+        }
+      };
+    });
+  };
 }
 
 class CompanyModel implements ModelStrategy<Company> {
   fetchData = getCompanies;
   getColumns = (): (keyof Company)[] => ["name", "industry", "country", "employeeCount", "isActive", "createdAt", "updatedAt"];
-  getTableName = () => "Company";
+  getQueryFields = async () => {
+    const fields = await getTableFields("Company");
+    return fields;
+  };
 }
 
 class ProductModel implements ModelStrategy<Product> {
   fetchData = getProducts;
   getColumns = (): (keyof Product)[] => ["name", "price", "description", "createdAt", "updatedAt"];
-  getTableName = () => "Product";
+  getQueryFields = async () => {
+    const fields = await getTableFields("Product");
+    return fields;
+  };
 }
 
 export class ModelFactory {
