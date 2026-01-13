@@ -25,7 +25,6 @@ const QueryBuilderArea = ({ dataCount, fields, initialQuery, currentTable }: Pro
       {showFilter && (
         <QueryBuilderPanel
           key={currentTable}
-          currentTable={currentTable}
           fields={fields}
           initialQuery={initialQuery}
         />

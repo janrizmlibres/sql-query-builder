@@ -59,12 +59,11 @@ const getOperators = (_fieldName: string, { fieldData }: { fieldData: Field }) =
 };
 
 type Props = {
-  currentTable: string;
   fields: Field[];
   initialQuery?: RuleGroupType | null;
 }
   
-const QueryBuilderPanel = ({ currentTable, fields, initialQuery }: Props) => {
+const QueryBuilderPanel = ({ fields, initialQuery }: Props) => {
   const { queryParam, defaultQuery, debounceTime } = QUERY_CONFIG;
 
   const [query, setQuery] = useState<RuleGroupType>(initialQuery || defaultQuery);
@@ -97,15 +96,10 @@ const QueryBuilderPanel = ({ currentTable, fields, initialQuery }: Props) => {
     syncQuery();
   }, [debouncedQuery, pathname, router, searchParams, queryParam]);
 
-  const model = ModelFactory.getModel(currentTable);
-
-  const fieldsWithValidators = model.getQueryFieldsWithValidators
-    ? model.getQueryFieldsWithValidators(fields) : fields;
-
   return (
     <div>
       <QueryBuilder
-        fields={fieldsWithValidators}
+        fields={fields}
         query={query}
         onQueryChange={setQuery}
         getOperators={getOperators}

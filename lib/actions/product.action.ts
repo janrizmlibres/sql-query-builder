@@ -3,11 +3,12 @@
 import { Prisma, Product } from "@/app/generated/prisma/client";
 import prisma from "@/lib/prisma";
 import handleError from "@/lib/handlers/error";
-import { RuleGroupType, formatQuery } from "react-querybuilder";
+import { Field, RuleGroupType, formatQuery } from "react-querybuilder";
 
 export const getProducts = async (
   sqlQuery?: RuleGroupType | null,
-  params?: PaginatedSearchParams
+  params?: PaginatedSearchParams,
+  fields?: Field[]
 ): Promise<ActionResponse<PaginatedResponse<Product>>> => {
   const { page = 1, pageSize = 10, query, filter } = params || {};
   const skip = (page - 1) * pageSize;
@@ -16,7 +17,7 @@ export const getProducts = async (
   let where: Prisma.ProductWhereInput = {};
   
   if (sqlQuery) {
-    where = formatQuery(sqlQuery, { format: 'prisma', parseNumbers: true });
+    where = formatQuery(sqlQuery, { format: 'prisma', parseNumbers: true, fields });
   } else if (query) {
     where.OR = [
       { name: { contains: query, mode: Prisma.QueryMode.insensitive } },

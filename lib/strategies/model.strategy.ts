@@ -5,20 +5,28 @@ import { Company, Product, User } from "@/app/generated/prisma/client";
 import { defaultOperators, Field, RuleGroupType, RuleType, ValidationResult } from "react-querybuilder";
 import { getTableFields } from "../actions/schema.action";
 
+interface GetQueryFieldsOptions {
+  withValidators?: boolean;
+}
+
 export interface ModelStrategy<T> {
-  fetchData: (sqlQuery?: RuleGroupType | null, params?: PaginatedSearchParams) => Promise<ActionResponse<PaginatedResponse<T>>>;
+  fetchData: (
+    sqlQuery?: RuleGroupType | null,
+    params?: PaginatedSearchParams,
+    fields?: Field[]
+  ) => Promise<ActionResponse<PaginatedResponse<T>>>;
   getColumns: () => (keyof T)[];
-  getQueryFields: () => Promise<Field[]>;
-  getQueryFieldsWithValidators?: (fields: Field[]) => Field[];
+  getQueryFields: (options?: GetQueryFieldsOptions) => Promise<Field[]>;
+  getQueryFieldsWithValidators: (fields: Field[]) => Field[];
 }
 
 class UserModel implements ModelStrategy<User> {
   fetchData = getUsers;
   getColumns = (): (keyof User)[] => ["name", "email", "age", "gender", "isAdmin", "createdAt", "updatedAt"];
-  getQueryFields = async () => {
+  getQueryFields = async (options?: GetQueryFieldsOptions) => {
     const fields = await getTableFields("User");
 
-    return fields.map(field => {
+    const mappedFields = fields.map(field => {
       switch (field.name) {
         case "email":
           return {
@@ -44,6 +52,12 @@ class UserModel implements ModelStrategy<User> {
           return field;
       }
     });
+
+    if (options?.withValidators) {
+      return this.getQueryFieldsWithValidators(mappedFields);
+    }
+
+    return mappedFields;
   };
   getQueryFieldsWithValidators = (fields: Field[]) => {
     return fields.map(field => {
@@ -67,6 +81,9 @@ class CompanyModel implements ModelStrategy<Company> {
     const fields = await getTableFields("Company");
     return fields;
   };
+  getQueryFieldsWithValidators = (fields: Field[]) => {
+    return fields;
+  };
 }
 
 class ProductModel implements ModelStrategy<Product> {
@@ -74,6 +91,9 @@ class ProductModel implements ModelStrategy<Product> {
   getColumns = (): (keyof Product)[] => ["name", "price", "description", "createdAt", "updatedAt"];
   getQueryFields = async () => {
     const fields = await getTableFields("Product");
+    return fields;
+  };
+  getQueryFieldsWithValidators = (fields: Field[]) => {
     return fields;
   };
 }

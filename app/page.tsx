@@ -13,13 +13,13 @@ export default async function Home({ searchParams }: RouteParams) {
 
   const model = ModelFactory.getModel(currentTable);
 
-  const query = hash ? await getQuery(hash) : null;
-
-  const [ response, fields ] = await Promise.all([
-    model.fetchData(query),
+  const [query, fields] = await Promise.all([
+    hash ? await getQuery(hash) : null,
     model.getQueryFields(),
   ]);
 
+  const fieldsWithValidators = model.getQueryFieldsWithValidators(fields);
+  const response = await model.fetchData(query, undefined, fieldsWithValidators);
   const columns = model.getColumns();
 
   return (
