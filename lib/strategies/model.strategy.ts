@@ -38,6 +38,11 @@ interface GetQueryFieldsOptions {
   withValidators?: boolean;
 }
 
+/**
+ * We use the Strategy design pattern to separate the logic for different models.
+ * This also allows us to centralize the logic for getting the query fields, validators, etc.
+ * Also useful for easily adding new models in the future.
+ */
 export interface ModelStrategy<T> {
   fetchData: (
     sqlQuery?: RuleGroupType | null,
