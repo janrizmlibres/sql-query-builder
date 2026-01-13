@@ -27,6 +27,7 @@ const QueryBuilderArea = ({ dataCount, fields, initialQuery, currentTable }: Pro
           key={currentTable}
           fields={fields}
           initialQuery={initialQuery}
+          currentTable={currentTable}
         />
       )}
     </div>

@@ -2,18 +2,29 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Field, QueryBuilder, RuleGroupType, defaultOperators } from 'react-querybuilder';
+import { Field, QueryBuilder, RuleGroupType, defaultOperators, add } from 'react-querybuilder';
 import { useDebounce } from 'use-debounce';
+import { Plus } from 'lucide-react';
 import { saveQuery } from '@/lib/actions/query.action';
 import { QUERY_CONFIG } from '@/constants';
-import { ModelFactory } from '@/lib/strategies/model.strategy';
+import {
+  AddFilterAction,
+  RemoveRuleAction,
+  RemoveGroupAction,
+  InlineCombinatorToggle,
+  HiddenAddGroup,
+  FieldSelector,
+  OperatorSelector,
+  ValueEditor,
+} from './QueryBuilderControls';
+import './QueryBuilder.css';
 
 const getOperators = (_fieldName: string, { fieldData }: { fieldData: Field }) => {
   switch (fieldData.datatype) {
     case 'text':
       return [
-        { name: '=', label: 'is' },
-        { name: '!=', label: 'is not' },
+        { name: '=', label: 'Is' },
+        { name: '!=', label: 'Is not' },
         ...defaultOperators.filter(op =>
           [
             'contains',
@@ -21,6 +32,7 @@ const getOperators = (_fieldName: string, { fieldData }: { fieldData: Field }) =
             'endsWith',
             'doesNotContain',
             'doesNotBeginWith',
+            'doesNotEndWith',
             'doesNotEndWith',
             'null',
             'notNull',
@@ -32,38 +44,61 @@ const getOperators = (_fieldName: string, { fieldData }: { fieldData: Field }) =
     case 'number':
       return [
         ...defaultOperators.filter(op => ['=', '!='].includes(op.name)),
-        { name: '<', label: 'less than' },
-        { name: '<=', label: 'less than or equal to' },
-        { name: '>', label: 'greater than' },
-        { name: '>=', label: 'greater than or equal to' },
+        { name: '<', label: 'Less than' },
+        { name: '<=', label: 'Less than or equal to' },
+        { name: '>', label: 'Greater than' },
+        { name: '>=', label: 'Greater than or equal to' },
         ...defaultOperators.filter(op => ['null', 'notNull'].includes(op.name)),
       ];
     case 'date':
       return [
-        { name: '=', label: 'on' },
-        { name: '!=', label: 'not on' },
-        { name: '<', label: 'before' },
-        { name: '<=', label: 'on or before' },
-        { name: '>', label: 'after' },
-        { name: '>=', label: 'on or after' },
+        { name: '=', label: 'On' },
+        { name: '!=', label: 'Not on' },
+        { name: '<', label: 'Before' },
+        { name: '<=', label: 'On or before' },
+        { name: '>', label: 'After' },
+        { name: '>=', label: 'On or after' },
         ...defaultOperators.filter(op => ['null', 'notNull'].includes(op.name)),
       ];
     case 'boolean':
       return [
-        { name: '=', label: 'is' },
-        { name: '!=', label: 'is not' },
+        { name: '=', label: 'Is' },
+        { name: '!=', label: 'Is not' },
         ...defaultOperators.filter(op => ['null', 'notNull'].includes(op.name)),
       ];
   }
   return defaultOperators;
 };
 
+// Custom control elements configuration
+const controlElements = {
+  addRuleAction: AddFilterAction,
+  addGroupAction: HiddenAddGroup,
+  removeRuleAction: RemoveRuleAction,
+  removeGroupAction: RemoveGroupAction,
+  combinatorSelector: InlineCombinatorToggle,
+  fieldSelector: FieldSelector,
+  operatorSelector: OperatorSelector,
+  valueEditor: ValueEditor,
+  dragHandle: null,
+  cloneRuleAction: null,
+  cloneGroupAction: null,
+  lockRuleAction: null,
+  lockGroupAction: null,
+  shiftActions: null,
+};
+
 type Props = {
   fields: Field[];
   initialQuery?: RuleGroupType | null;
+  currentTable?: string;
 }
   
-const QueryBuilderPanel = ({ fields, initialQuery }: Props) => {
+const QueryBuilderPanel = ({ 
+  fields, 
+  initialQuery, 
+  currentTable,
+}: Props) => {
   const { queryParam, defaultQuery, debounceTime } = QUERY_CONFIG;
 
   const [query, setQuery] = useState<RuleGroupType>(initialQuery || defaultQuery);
@@ -96,15 +131,65 @@ const QueryBuilderPanel = ({ fields, initialQuery }: Props) => {
     syncQuery();
   }, [debouncedQuery, pathname, router, searchParams, queryParam]);
 
+  const handleAddGroup = () => {
+    const newGroup: RuleGroupType = {
+      combinator: 'and',
+      rules: [],
+    };
+    setQuery((prev) => add(prev, newGroup, []));
+  };
+
+  const handleClearAll = () => {
+    setQuery(defaultQuery);
+  };
+
+  // Get table label for group headers
+  const tableLabel = currentTable ? `All ${currentTable.charAt(0).toUpperCase() + currentTable.slice(1)}` : 'All Users';
+  const hasRules = query.rules.length > 0;
+
   return (
-    <div>
-      <QueryBuilder
-        fields={fields}
-        query={query}
-        onQueryChange={setQuery}
-        getOperators={getOperators}
-      />
-    </div>
+    <>
+      <div className="bg-mp-bg-card p-6 mt-4 rounded-lg border border-mp-border shadow-xs">
+        {/* Group Header Label */}
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-xs font-semibold text-mp-text-secondary uppercase tracking-wide">
+            {tableLabel}
+          </span>
+        </div>
+
+        {/* Query Builder */}
+        <QueryBuilder
+          fields={fields}
+          query={query}
+          onQueryChange={setQuery}
+          getOperators={getOperators}
+          controlElements={controlElements}
+          showCombinatorsBetweenRules
+        />
+      </div>
+
+      {/* Footer Actions - Outside the container, only show when there are rules */}
+      {hasRules && (
+        <div className="flex items-center justify-between mt-4">
+          <button
+            type="button"
+            onClick={handleAddGroup}
+            className="flex items-center gap-1.5 text-sm font-medium text-mp-text-secondary hover:text-mp-primary transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Group</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleClearAll}
+            className="text-sm font-medium text-mp-text-secondary hover:text-red-500 transition-colors"
+          >
+            Clear all
+          </button>
+        </div>
+      )}
+    </>
   );
 };
 

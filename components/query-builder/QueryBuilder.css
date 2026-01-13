@@ -1,0 +1,261 @@
+.queryBuilder {
+  width: 100%;
+}
+
+/* Rule Groups - flexbox to reorder header after body */
+.ruleGroup {
+  display: flex;
+  flex-direction: column;
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Nested groups */
+.ruleGroup .ruleGroup {
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  background-color: var(--bg-card);
+  position: relative;
+}
+
+/* Nested group header label */
+.ruleGroup .ruleGroup > .ruleGroup-body::before {
+  content: 'ALL USERS';
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+/* Move header after body using order (+ Filter appears after rules) */
+.ruleGroup-header {
+  order: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+/* Hide the combinator selector in header (we use inline combinators) */
+.ruleGroup-header > .ruleGroup-combinators {
+  display: none !important;
+}
+
+/* Rules Container */
+.ruleGroup-body {
+  order: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Individual Rule */
+.rule {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+/* "where" label before first rule - using CSS counter trick */
+.ruleGroup-body > .rule:first-of-type::before {
+  content: 'where';
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-right: 0.5rem;
+  font-weight: 500;
+}
+
+/* Field Selector - Gray badge */
+.rule-fields {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  background-color: #f3f4f6;
+  color: var(--text-primary);
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.rule-fields:hover {
+  background-color: #e5e7eb;
+}
+
+.rule-fields:focus {
+  outline: 2px solid #6b7280;
+  outline-offset: 2px;
+}
+
+/* Operator Selector - Gray badge */
+.rule-operators {
+  appearance: none;
+  background-color: #f3f4f6;
+  color: var(--text-primary);
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.rule-operators:hover {
+  background-color: #e5e7eb;
+}
+
+.rule-operators:focus {
+  outline: 2px solid #6b7280;
+  outline-offset: 2px;
+}
+
+/* Value Editor - Gray badge */
+.rule-value {
+  background-color: #f3f4f6;
+  color: var(--text-primary);
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  min-width: 40px;
+}
+
+.rule-value::placeholder {
+  color: #9ca3af;
+}
+
+.rule-value:focus {
+  outline: 2px solid #6b7280;
+  outline-offset: 2px;
+}
+
+/* Remove button in rules */
+.rule-remove {
+  background: transparent;
+  border: none;
+  padding: 0.375rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.25rem;
+}
+
+.rule-remove:hover {
+  color: #ef4444;
+  background-color: #fef2f2;
+}
+
+/* Hide drag handles */
+.rule-drag-handle,
+.ruleGroup-drag-handle,
+.queryBuilder-dragHandle {
+  display: none !important;
+}
+
+/* Inline Combinators (AND/OR between rules) */
+.betweenRules,
+.ruleGroup-combinators.betweenRules,
+.inlineCombinator {
+  display: flex;
+  justify-content: center;
+  padding: 0.25rem 0;
+  margin: 0.25rem 0;
+}
+
+/* Add Rule Button (+ Filter) */
+.ruleGroup-addRule {
+  background: transparent;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 0;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.ruleGroup-addRule:hover {
+  color: var(--primary);
+}
+
+/* Hide default Add Group button */
+.ruleGroup-addGroup {
+  display: none !important;
+}
+
+/* Remove Group button */
+.ruleGroup-remove {
+  background: transparent;
+  border: none;
+  padding: 0.375rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.25rem;
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+}
+
+.ruleGroup-remove:hover {
+  color: #ef4444;
+  background-color: #fef2f2;
+}
+
+/* Not toggle - hide */
+.ruleGroup-notToggle {
+  display: none !important;
+}
+
+/* Clone buttons - hide */
+.rule-cloneRule,
+.ruleGroup-cloneGroup {
+  display: none !important;
+}
+
+/* Lock buttons - hide */
+.rule-lock,
+.ruleGroup-lock {
+  display: none !important;
+}
+
+/* Shift actions - hide */
+.rule-shiftActions,
+.ruleGroup-shiftActions {
+  display: none !important;
+}
+
+/* Value source selector - hide if not needed */
+.rule-valueSource {
+  display: none !important;
+}
+
+/* Nested groups need relative positioning for remove button */
+.ruleGroup .ruleGroup {
+  position: relative;
+}

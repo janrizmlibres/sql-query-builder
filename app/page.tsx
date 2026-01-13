@@ -2,7 +2,6 @@ import QueryBuilderArea from "@/components/query-builder/QueryBuilderArea";
 import TableSelector from "@/components/TableSelector";
 import DataTable from "@/components/DataTable";
 import { TABLE_CONFIG } from "@/constants";
-import { capitalize } from "@/lib/utils";
 import { ModelFactory } from "@/lib/strategies/model.strategy";
 import { getQuery } from "@/lib/actions/query.action";
 
@@ -23,17 +22,22 @@ export default async function Home({ searchParams }: RouteParams) {
   const columns = model.getColumns();
 
   return (
-    <div>
-      <main>
+    <div className="min-h-screen bg-background text-mp-text-primary pb-20">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-4">
         <TableSelector />
-        <h1>{capitalize(currentTable)}</h1>
+
+        {/* Reports / Query Area */}
         <QueryBuilderArea
           dataCount={response.data?.items.length || 0}
           fields={fields}
           initialQuery={query}
           currentTable={currentTable}
         />
-        <DataTable response={response} columns={columns} />
+
+        {/* Data Table Area */}
+        <div className="bg-mp-bg-card rounded-lg border border-mp-border shadow-sm overflow-hidden">
+           <DataTable response={response} columns={columns} />
+        </div>
       </main>
     </div>
   );
