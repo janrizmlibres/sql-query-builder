@@ -11,7 +11,7 @@ import {
   AddFilterAction,
   RemoveRuleAction,
   RemoveGroupAction,
-  InlineCombinatorToggle,
+  InlineCombinatorDropdown,
   HiddenAddGroup,
   FieldSelector,
   OperatorSelector,
@@ -23,8 +23,8 @@ const getOperators = (_fieldName: string, { fieldData }: { fieldData: Field }) =
   switch (fieldData.datatype) {
     case 'text':
       return [
-        { name: '=', label: 'Is' },
-        { name: '!=', label: 'Is not' },
+        { name: '=', label: 'is' },
+        { name: '!=', label: 'is not' },
         ...defaultOperators.filter(op =>
           [
             'contains',
@@ -36,47 +36,48 @@ const getOperators = (_fieldName: string, { fieldData }: { fieldData: Field }) =
             'doesNotEndWith',
             'null',
             'notNull',
-            'in',
-            'notIn',
           ].includes(op.name)
         ),
       ];
     case 'number':
       return [
         ...defaultOperators.filter(op => ['=', '!='].includes(op.name)),
-        { name: '<', label: 'Less than' },
-        { name: '<=', label: 'Less than or equal to' },
-        { name: '>', label: 'Greater than' },
-        { name: '>=', label: 'Greater than or equal to' },
+        { name: '<', label: 'less than' },
+        { name: '<=', label: 'less than or equal to' },
+        { name: '>', label: 'greater than' },
+        { name: '>=', label: 'greater than or equal to' },
         ...defaultOperators.filter(op => ['null', 'notNull'].includes(op.name)),
       ];
     case 'date':
       return [
-        { name: '=', label: 'On' },
-        { name: '!=', label: 'Not on' },
-        { name: '<', label: 'Before' },
-        { name: '<=', label: 'On or before' },
-        { name: '>', label: 'After' },
-        { name: '>=', label: 'On or after' },
-        ...defaultOperators.filter(op => ['null', 'notNull'].includes(op.name)),
+        { name: '=', label: 'on' },
+        { name: '!=', label: 'not on' },
+        { name: '<', label: 'before' },
+        { name: '<=', label: 'on or before' },
+        { name: '>', label: 'after' },
+        { name: '>=', label: 'on or after' },
+      ];
+    case 'datetime-local':
+      return [
+        { name: '<', label: 'before' },
+        { name: '>', label: 'after' },
       ];
     case 'boolean':
       return [
-        { name: '=', label: 'Is' },
-        { name: '!=', label: 'Is not' },
+        { name: '=', label: 'is' },
+        { name: '!=', label: 'is not' },
         ...defaultOperators.filter(op => ['null', 'notNull'].includes(op.name)),
       ];
   }
   return defaultOperators;
 };
 
-// Custom control elements configuration
 const controlElements = {
   addRuleAction: AddFilterAction,
   addGroupAction: HiddenAddGroup,
   removeRuleAction: RemoveRuleAction,
   removeGroupAction: RemoveGroupAction,
-  combinatorSelector: InlineCombinatorToggle,
+  combinatorSelector: InlineCombinatorDropdown,
   fieldSelector: FieldSelector,
   operatorSelector: OperatorSelector,
   valueEditor: ValueEditor,
@@ -94,7 +95,7 @@ type Props = {
   currentTable?: string;
 }
   
-const QueryBuilderPanel = ({ 
+const QueryBuilderPanel = ({
   fields, 
   initialQuery, 
   currentTable,
@@ -104,7 +105,7 @@ const QueryBuilderPanel = ({
   const [query, setQuery] = useState<RuleGroupType>(initialQuery || defaultQuery);
   const [debouncedQuery] = useDebounce(query, debounceTime);
 
-  const lastHash = useRef<string | null>(null);
+  const lastQuery = useRef<RuleGroupType | null>(null);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -112,6 +113,9 @@ const QueryBuilderPanel = ({
 
   useEffect(() => {
     const syncQuery = async () => {
+      if (JSON.stringify(debouncedQuery) === JSON.stringify(lastQuery.current)) return;
+      lastQuery.current = debouncedQuery;
+
       const params = new URLSearchParams(searchParams.toString());
 
       if (debouncedQuery.rules.length === 0) {
@@ -120,10 +124,6 @@ const QueryBuilderPanel = ({
         const hash = await saveQuery(debouncedQuery);
         params.set(queryParam, hash);
       }
-
-      const currentHash = params.get(queryParam);
-      if (currentHash === lastHash.current) return;
-      lastHash.current = currentHash;
 
       router.push(`${pathname}?${params.toString()}`);
     };
@@ -143,21 +143,18 @@ const QueryBuilderPanel = ({
     setQuery(defaultQuery);
   };
 
-  // Get table label for group headers
   const tableLabel = currentTable ? `All ${currentTable.charAt(0).toUpperCase() + currentTable.slice(1)}` : 'All Users';
   const hasRules = query.rules.length > 0;
 
   return (
     <>
       <div className="bg-mp-bg-card p-6 mt-4 rounded-lg border border-mp-border shadow-xs">
-        {/* Group Header Label */}
         <div className="flex items-center gap-2 mb-3">
           <span className="text-xs font-semibold text-mp-text-secondary uppercase tracking-wide">
             {tableLabel}
           </span>
         </div>
 
-        {/* Query Builder */}
         <QueryBuilder
           fields={fields}
           query={query}
@@ -168,7 +165,6 @@ const QueryBuilderPanel = ({
         />
       </div>
 
-      {/* Footer Actions - Outside the container, only show when there are rules */}
       {hasRules && (
         <div className="flex items-center justify-between mt-4">
           <button

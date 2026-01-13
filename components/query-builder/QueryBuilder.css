@@ -2,7 +2,6 @@
   width: 100%;
 }
 
-/* Rule Groups - flexbox to reorder header after body */
 .ruleGroup {
   display: flex;
   flex-direction: column;
@@ -12,7 +11,6 @@
   margin: 0;
 }
 
-/* Nested groups */
 .ruleGroup .ruleGroup {
   border: 1px solid var(--border-color);
   border-radius: 0.5rem;
@@ -23,9 +21,8 @@
   position: relative;
 }
 
-/* Nested group header label */
 .ruleGroup .ruleGroup > .ruleGroup-body::before {
-  content: 'ALL USERS';
+  content: 'Group';
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -37,7 +34,24 @@
   margin-bottom: 0.75rem;
 }
 
-/* Move header after body using order (+ Filter appears after rules) */
+.ruleGroup-body > .betweenRules:has(+ .ruleGroup),
+.ruleGroup-body > .inlineCombinator:has(+ .ruleGroup) {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 0;
+  padding-top: 0.75rem;
+  padding-bottom: 0;
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+.ruleGroup-body > .betweenRules:has(+ .ruleGroup) + .ruleGroup,
+.ruleGroup-body > .inlineCombinator:has(+ .ruleGroup) + .ruleGroup {
+  margin-top: -2rem;
+  margin-left: 2.5rem;
+}
+
 .ruleGroup-header {
   order: 2;
   display: flex;
@@ -46,12 +60,10 @@
   margin-top: 0.5rem;
 }
 
-/* Hide the combinator selector in header (we use inline combinators) */
 .ruleGroup-header > .ruleGroup-combinators {
   display: none !important;
 }
 
-/* Rules Container */
 .ruleGroup-body {
   order: 1;
   display: flex;
@@ -59,7 +71,6 @@
   gap: 0;
 }
 
-/* Individual Rule */
 .rule {
   display: flex;
   align-items: center;
@@ -67,7 +78,6 @@
   padding: 0.5rem 0;
 }
 
-/* "where" label before first rule - using CSS counter trick */
 .ruleGroup-body > .rule:first-of-type::before {
   content: 'where';
   font-size: 0.875rem;
@@ -76,7 +86,29 @@
   font-weight: 500;
 }
 
-/* Field Selector - Gray badge */
+.ruleGroup-body > .betweenRules,
+.ruleGroup-body > .inlineCombinator {
+  display: flex;
+  align-items: center;
+  padding-top: 0.5rem;
+  padding-bottom: 0;
+  margin-bottom: -2.25rem;
+  position: relative;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.ruleGroup-body > .betweenRules .inline-combinator-dropdown,
+.ruleGroup-body > .inlineCombinator .inline-combinator-dropdown {
+  pointer-events: auto;
+}
+
+.ruleGroup-body > .betweenRules + .rule,
+.ruleGroup-body > .inlineCombinator + .rule {
+  padding-left: 2.5rem;
+}
+
+
 .rule-fields {
   appearance: none;
   display: inline-flex;
@@ -101,7 +133,6 @@
   outline-offset: 2px;
 }
 
-/* Operator Selector - Gray badge */
 .rule-operators {
   appearance: none;
   background-color: #f3f4f6;
@@ -124,7 +155,6 @@
   outline-offset: 2px;
 }
 
-/* Value Editor - Gray badge */
 .rule-value {
   background-color: #f3f4f6;
   color: var(--text-primary);
@@ -145,7 +175,6 @@
   outline-offset: 2px;
 }
 
-/* Remove button in rules */
 .rule-remove {
   background: transparent;
   border: none;
@@ -164,24 +193,82 @@
   background-color: #fef2f2;
 }
 
-/* Hide drag handles */
 .rule-drag-handle,
 .ruleGroup-drag-handle,
 .queryBuilder-dragHandle {
   display: none !important;
 }
 
-/* Inline Combinators (AND/OR between rules) */
-.betweenRules,
-.ruleGroup-combinators.betweenRules,
-.inlineCombinator {
-  display: flex;
-  justify-content: center;
-  padding: 0.25rem 0;
-  margin: 0.25rem 0;
+.inline-combinator-dropdown {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
 }
 
-/* Add Rule Button (+ Filter) */
+.inline-combinator-button {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin-right: 0.5rem;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.inline-combinator-button:hover {
+  color: var(--primary);
+}
+
+.inline-combinator-menu {
+  position: fixed;
+  min-width: 5rem;
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  z-index: 99999;
+  padding: 0.25rem;
+  animation: fadeIn 0.15s ease;
+}
+
+.inline-combinator-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: transparent;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.inline-combinator-option:hover {
+  color: var(--primary);
+  background-color: rgba(99, 102, 241, 0.05);
+}
+
+.inline-combinator-option.selected {
+  color: white;
+  background-color: var(--primary);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .ruleGroup-addRule {
   background: transparent;
   border: none;
@@ -200,12 +287,10 @@
   color: var(--primary);
 }
 
-/* Hide default Add Group button */
 .ruleGroup-addGroup {
   display: none !important;
 }
 
-/* Remove Group button */
 .ruleGroup-remove {
   background: transparent;
   border: none;
@@ -227,35 +312,29 @@
   background-color: #fef2f2;
 }
 
-/* Not toggle - hide */
 .ruleGroup-notToggle {
   display: none !important;
 }
 
-/* Clone buttons - hide */
 .rule-cloneRule,
 .ruleGroup-cloneGroup {
   display: none !important;
 }
 
-/* Lock buttons - hide */
 .rule-lock,
 .ruleGroup-lock {
   display: none !important;
 }
 
-/* Shift actions - hide */
 .rule-shiftActions,
 .ruleGroup-shiftActions {
   display: none !important;
 }
 
-/* Value source selector - hide if not needed */
 .rule-valueSource {
   display: none !important;
 }
 
-/* Nested groups need relative positioning for remove button */
 .ruleGroup .ruleGroup {
   position: relative;
 }

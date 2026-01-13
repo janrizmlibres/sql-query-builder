@@ -17,7 +17,11 @@ export const getCompanies = async (
   let where: Prisma.CompanyWhereInput = {};
 
   if (sqlQuery) {
-    where = formatQuery(sqlQuery, { format: 'prisma', parseNumbers: true, fields });
+    where = formatQuery(sqlQuery, { 
+      format: 'prisma', 
+      parseNumbers: true, 
+      fields,
+    });
   } else if (query) {
     where.OR = [
       { name: { contains: query, mode: Prisma.QueryMode.insensitive } },

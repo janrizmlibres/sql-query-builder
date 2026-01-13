@@ -17,7 +17,11 @@ export const getProducts = async (
   let where: Prisma.ProductWhereInput = {};
   
   if (sqlQuery) {
-    where = formatQuery(sqlQuery, { format: 'prisma', parseNumbers: true, fields });
+    where = formatQuery(sqlQuery, { 
+      format: 'prisma', 
+      parseNumbers: true, 
+      fields,
+    });
   } else if (query) {
     where.OR = [
       { name: { contains: query, mode: Prisma.QueryMode.insensitive } },

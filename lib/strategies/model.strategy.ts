@@ -5,6 +5,35 @@ import { Company, Product, User } from "@/app/generated/prisma/client";
 import { defaultOperators, Field, RuleGroupType, RuleType, ValidationResult } from "react-querybuilder";
 import { getTableFields } from "../actions/schema.action";
 
+const TEXT_OPERATORS_WITHOUT_NULL_AND_NOT_NULL = [
+  { name: '=', label: 'is' },
+  { name: '!=', label: 'is not' },
+  ...defaultOperators.filter(op =>
+    [
+      'contains',
+      'beginsWith',
+      'endsWith',
+      'doesNotContain',
+      'doesNotBeginWith',
+      'doesNotEndWith',
+    ].includes(op.name)
+  ),
+]
+
+const getValidatedFields = (fields: Field[], fieldsToValidate: string[]) => {
+  return fields.map(field => {
+    if (!fieldsToValidate.includes(field.name)) return field;
+
+    return {
+      ...field,
+      validator: (r: RuleType): ValidationResult => {
+        const invalid = r.value == null || r.value === "";
+        return { valid: !invalid, reasons: invalid ? ["Value is required"] : undefined };
+      }
+    };
+  });
+}
+
 interface GetQueryFieldsOptions {
   withValidators?: boolean;
 }
@@ -31,21 +60,47 @@ class UserModel implements ModelStrategy<User> {
         case "email":
           return {
             ...field,
+            operators: TEXT_OPERATORS_WITHOUT_NULL_AND_NOT_NULL,
+          }
+        default:
+          return field;
+      }
+    });
+
+    if (options?.withValidators) {
+      return this.getQueryFieldsWithValidators(mappedFields);
+    }
+
+    return mappedFields;
+  };
+  getQueryFieldsWithValidators = (fields: Field[]) => {
+    const fieldsToValidate = ['age', 'isAdmin', 'createdAt', 'updatedAt'];
+    return getValidatedFields(fields, fieldsToValidate);
+  };
+}
+
+class CompanyModel implements ModelStrategy<Company> {
+  fetchData = getCompanies;
+  getColumns = (): (keyof Company)[] => ["name", "industry", "country", "employeeCount", "isActive", "createdAt", "updatedAt"];
+  getQueryFields = async (options?: GetQueryFieldsOptions) => {
+    const fields = await getTableFields("Company");
+
+    const mappedFields = fields.map(field => {
+      switch (field.name) {
+        case "name":
+          return {
+            ...field,
+            operators: TEXT_OPERATORS_WITHOUT_NULL_AND_NOT_NULL,
+          }
+        case "employeeCount":
+          return {
+            ...field,
             operators: [
-              { name: '=', label: 'is' },
-              { name: '!=', label: 'is not' },
-              ...defaultOperators.filter(op =>
-                [
-                  'contains',
-                  'beginsWith',
-                  'endsWith',
-                  'doesNotContain',
-                  'doesNotBeginWith',
-                  'doesNotEndWith',
-                  'in',
-                  'notIn',
-                ].includes(op.name)
-              ),
+              ...defaultOperators.filter(op => ['=', '!='].includes(op.name)),
+              { name: '<', label: 'less than' },
+              { name: '<=', label: 'less than or equal to' },
+              { name: '>', label: 'greater than' },
+              { name: '>=', label: 'greater than or equal to' },
             ],
           }
         default:
@@ -60,41 +115,38 @@ class UserModel implements ModelStrategy<User> {
     return mappedFields;
   };
   getQueryFieldsWithValidators = (fields: Field[]) => {
-    return fields.map(field => {
-      if (field.name !== 'age') return field;
-
-      return {
-        ...field,
-        validator: (r: RuleType): ValidationResult => {
-          const invalid = r.value == null || r.value === "";
-          return { valid: !invalid, reasons: invalid ? ["Value is required"] : undefined };
-        }
-      };
-    });
-  };
-}
-
-class CompanyModel implements ModelStrategy<Company> {
-  fetchData = getCompanies;
-  getColumns = (): (keyof Company)[] => ["name", "industry", "country", "employeeCount", "isActive", "createdAt", "updatedAt"];
-  getQueryFields = async () => {
-    const fields = await getTableFields("Company");
-    return fields;
-  };
-  getQueryFieldsWithValidators = (fields: Field[]) => {
-    return fields;
+    const fieldsToValidate = ['employeeCount', 'isActive','createdAt', 'updatedAt'];
+    return getValidatedFields(fields, fieldsToValidate);
   };
 }
 
 class ProductModel implements ModelStrategy<Product> {
   fetchData = getProducts;
   getColumns = (): (keyof Product)[] => ["name", "price", "description", "createdAt", "updatedAt"];
-  getQueryFields = async () => {
+  getQueryFields = async (options?: GetQueryFieldsOptions) => {
     const fields = await getTableFields("Product");
-    return fields;
+
+    const mappedFields = fields.map(field => {
+      switch (field.name) {
+        case "name":
+          return {
+            ...field,
+            operators: TEXT_OPERATORS_WITHOUT_NULL_AND_NOT_NULL,
+          }
+        default:
+          return field;
+      }
+    });
+
+    if (options?.withValidators) {
+      return this.getQueryFieldsWithValidators(mappedFields);
+    }
+
+    return mappedFields;
   };
   getQueryFieldsWithValidators = (fields: Field[]) => {
-    return fields;
+    const fieldsToValidate = ['price', 'createdAt', 'updatedAt'];
+    return getValidatedFields(fields, fieldsToValidate);
   };
 }
 

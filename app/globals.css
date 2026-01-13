@@ -2,9 +2,8 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #374151; /* Gray 700 */
+  --foreground: #374151;
   
-  /* Mixpanel Palette approximation */
   --primary: #7856ff;
   --primary-hover: #6340df;
   --bg-page: #f9fafb;
@@ -29,14 +28,6 @@
   --color-mp-text-secondary: var(--text-secondary);
   
   --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-}
-
-@media (prefers-color-scheme: dark) {
-  /* Enforcing light mode as requested, but keeping structure valid */
-  :root {
-    --background: #ffffff;
-    --foreground: #374151;
-  }
 }
 
 body {

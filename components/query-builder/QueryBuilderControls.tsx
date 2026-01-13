@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import {
   ActionProps,
   CombinatorSelectorProps,
@@ -8,14 +8,12 @@ import {
   OperatorSelectorProps,
   ValueEditorProps,
 } from 'react-querybuilder';
-import { Plus, Trash2, MoreHorizontal, ChevronDown } from 'lucide-react';
+import { Plus, Trash2, ChevronDown } from 'lucide-react';
 
-// Type guard to check if option has 'name' property
 const isNamedOption = (opt: unknown): opt is { name: string; label: string } => {
   return typeof opt === 'object' && opt !== null && 'name' in opt;
 };
 
-// Custom Add Rule Button (+ Filter)
 export const AddFilterAction = (props: ActionProps) => {
   const { handleOnClick, disabled } = props;
 
@@ -32,33 +30,22 @@ export const AddFilterAction = (props: ActionProps) => {
   );
 };
 
-// Custom Remove Rule Button
 export const RemoveRuleAction = (props: ActionProps) => {
   const { handleOnClick, disabled } = props;
 
   return (
-    <div className="flex items-center gap-1">
-      <button
-        type="button"
-        className="p-1.5 text-mp-text-secondary hover:text-mp-text-primary hover:bg-gray-100 rounded transition-colors"
-        title="More options"
-      >
-        <MoreHorizontal className="w-4 h-4" />
-      </button>
-      <button
-        type="button"
-        onClick={handleOnClick}
-        disabled={disabled}
-        className="p-1.5 text-mp-text-secondary hover:text-red-500 hover:bg-red-50 rounded transition-colors"
-        title="Remove rule"
-      >
-        <Trash2 className="w-4 h-4" />
-      </button>
-    </div>
+    <button
+      type="button"
+      onClick={handleOnClick}
+      disabled={disabled}
+      className="p-1.5 text-mp-text-secondary hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+      title="Remove rule"
+    >
+      <Trash2 className="w-4 h-4" />
+    </button>
   );
 };
 
-// Custom Remove Group Button
 export const RemoveGroupAction = (props: ActionProps) => {
   const { handleOnClick, disabled } = props;
 
@@ -75,62 +62,102 @@ export const RemoveGroupAction = (props: ActionProps) => {
   );
 };
 
-// Inline Combinator Toggle (between rules) - AND/OR toggle button
-export const InlineCombinatorToggle = (props: CombinatorSelectorProps) => {
-  const { value, handleOnChange, options, disabled } = props;
+export const InlineCombinatorDropdown = (props: CombinatorSelectorProps) => {
+  const { value, handleOnChange, options, disabled, path } = props;
+  const [isOpen, setIsOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  const pathKey = useMemo(() => path.join('-'), [path]);
+
+  const flatOptions = useMemo(() => {
+    const result: { name: string; label: string }[] = [];
+    for (const opt of options) {
+      if (isNamedOption(opt)) {
+        result.push({ name: opt.name, label: opt.label.toLowerCase() });
+      }
+    }
+    return result;
+  }, [options]);
+
+  const selectedOption = flatOptions.find((opt) => opt.name === value);
+  const displayLabel = selectedOption?.label || (value ?? '').toLowerCase();
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleToggle = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (disabled) return;
+    
+    setIsOpen((prev) => {
+      if (!prev && buttonRef.current) {
+        const rect = buttonRef.current.getBoundingClientRect();
+        setMenuPosition({
+          top: rect.bottom + 4,
+          left: rect.left,
+        });
+      }
+      return !prev;
+    });
+  }, [disabled]);
+
+  const handleSelect = useCallback((e: React.MouseEvent, optionName: string) => {
+    e.stopPropagation();
+    handleOnChange(optionName);
+    setIsOpen(false);
+  }, [handleOnChange]);
 
   return (
-    <div className="flex items-center justify-center py-1 my-1">
-      <div className="inline-flex rounded-md overflow-hidden border border-mp-border bg-mp-bg-card shadow-sm">
-        {options.map((option) => {
-          if (typeof option === 'string') {
+    <div className="inline-combinator-dropdown" ref={containerRef} data-path={pathKey}>
+      <button
+        ref={buttonRef}
+        type="button"
+        onClick={handleToggle}
+        disabled={disabled}
+        className="inline-combinator-button"
+      >
+        {displayLabel}
+      </button>
+
+      {isOpen && (
+        <div 
+          className="inline-combinator-menu"
+          style={{ top: menuPosition.top, left: menuPosition.left }}
+        >
+          {flatOptions.map((opt) => {
+            const isSelected = opt.name === value;
             return (
               <button
-                key={option}
+                key={opt.name}
                 type="button"
-                disabled={disabled}
-                onClick={() => handleOnChange(option)}
-                className={`px-3 py-1 text-xs font-semibold uppercase tracking-wide transition-colors ${
-                  value === option
-                    ? 'bg-mp-text-primary text-white'
-                    : 'bg-white text-mp-text-secondary hover:bg-gray-50'
-                }`}
+                onClick={(e) => handleSelect(e, opt.name)}
+                className={`inline-combinator-option ${isSelected ? 'selected' : ''}`}
               >
-                {option}
+                {opt.label}
               </button>
             );
-          }
-          if (isNamedOption(option)) {
-            return (
-              <button
-                key={option.name}
-                type="button"
-                disabled={disabled}
-                onClick={() => handleOnChange(option.name)}
-                className={`px-3 py-1 text-xs font-semibold uppercase tracking-wide transition-colors ${
-                  value === option.name
-                    ? 'bg-mp-text-primary text-white'
-                    : 'bg-white text-mp-text-secondary hover:bg-gray-50'
-                }`}
-              >
-                {option.label}
-              </button>
-            );
-          }
-          return null;
-        })}
-      </div>
+          })}
+        </div>
+      )}
     </div>
   );
 };
 
-// Custom Field Selector - dropdown with "Aa" prefix
 export const FieldSelector = (props: FieldSelectorProps) => {
   const { handleOnChange, options, value, disabled } = props;
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Flatten options and filter to only FullField items
   const flatOptions = options.flatMap((opt) => {
     if (typeof opt === 'string') return [];
     if ('options' in opt && Array.isArray(opt.options)) {
@@ -140,7 +167,6 @@ export const FieldSelector = (props: FieldSelectorProps) => {
     return [];
   });
 
-  // Find selected option label
   const selectedOption = flatOptions.find((opt) => opt.name === value);
   const displayLabel = selectedOption?.label || value;
 
@@ -205,13 +231,11 @@ export const FieldSelector = (props: FieldSelectorProps) => {
   );
 };
 
-// Custom Operator Selector - dropdown
 export const OperatorSelector = (props: OperatorSelectorProps) => {
   const { handleOnChange, options, value, disabled } = props;
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Flatten options and filter to only named options
   const flatOptions = options.flatMap((opt) => {
     if (typeof opt === 'string') return [];
     if ('options' in opt && Array.isArray(opt.options)) {
@@ -221,7 +245,6 @@ export const OperatorSelector = (props: OperatorSelectorProps) => {
     return [];
   });
 
-  // Find selected option label
   const selectedOption = flatOptions.find((opt) => opt.name === value);
   const displayLabel = selectedOption?.label || value;
 
@@ -283,9 +306,121 @@ export const OperatorSelector = (props: OperatorSelectorProps) => {
   );
 };
 
-// Custom Value Editor - input field with border
+const VALUE_LESS_OPERATORS = ['null', 'notNull'];
+
+const BOOLEAN_OPTIONS = [
+  { value: true, label: 'True' },
+  { value: false, label: 'False' },
+];
+
 export const ValueEditor = (props: ValueEditorProps) => {
-  const { handleOnChange, value, disabled, inputType, fieldData } = props;
+  const { handleOnChange, value, disabled, inputType, fieldData, operator } = props;
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const isBoolean = fieldData?.datatype === 'boolean';
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isBoolean) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isBoolean]);
+
+  if (VALUE_LESS_OPERATORS.includes(operator)) {
+    return null;
+  }
+
+  if (isBoolean) {
+    const selectedOption = BOOLEAN_OPTIONS.find((opt) => opt.value === value);
+    const displayLabel = selectedOption?.label || 'Select...';
+
+    return (
+      <div className="relative" ref={containerRef}>
+        <button
+          type="button"
+          onClick={() => !disabled && setIsOpen(!isOpen)}
+          disabled={disabled}
+          className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors rounded-md border bg-white min-w-[100px] justify-between cursor-pointer
+            ${isOpen 
+              ? 'text-mp-primary border-mp-primary' 
+              : 'text-mp-text-primary border-mp-border hover:text-mp-primary hover:border-mp-primary'
+            }
+            ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+        >
+          <span className={selectedOption ? '' : 'text-gray-400'}>{displayLabel}</span>
+          <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        </button>
+
+        {isOpen && (
+          <div className="absolute top-full left-0 mt-1 w-32 bg-white border border-mp-border rounded-xl shadow-xl z-50 py-1.5 px-1.5 overflow-hidden animate-in fade-in zoom-in duration-150">
+            {BOOLEAN_OPTIONS.map((opt) => {
+              const isSelected = opt.value === value;
+              return (
+                <button
+                  key={opt.label}
+                  type="button"
+                  onClick={() => {
+                    handleOnChange(opt.value);
+                    setIsOpen(false);
+                  }}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                    ${isSelected 
+                      ? 'bg-mp-primary text-white' 
+                      : 'text-mp-text-primary hover:text-mp-primary hover:bg-mp-primary/5'
+                    }`}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  const isDate = fieldData?.datatype === 'date' || fieldData?.datatype === 'datetime-local';
+
+  if (isDate) {
+    const getLocalDateTimeString = (isoString: string): string => {
+      const date = new Date(isoString);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
+
+    const displayValue = value ? getLocalDateTimeString(String(value)) : '';
+
+    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const localValue = e.target.value;
+      if (localValue) {
+        const isoValue = new Date(localValue).toISOString();
+        handleOnChange(isoValue);
+      } else {
+        handleOnChange('');
+      }
+    };
+
+    return (
+      <input
+        type="datetime-local"
+        value={displayValue}
+        onChange={handleDateChange}
+        disabled={disabled}
+        className="bg-white text-mp-text-primary px-3 py-1.5 rounded-md text-sm font-medium border border-mp-border min-w-[80px] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-mp-primary focus:border-mp-primary transition-colors"
+      />
+    );
+  }
 
   return (
     <input

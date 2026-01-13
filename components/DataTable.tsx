@@ -1,4 +1,4 @@
-import { capitalize, formatDate } from "@/lib/utils";
+import { toTitleCase, formatDate } from "@/lib/utils";
 
 type Props<T> = {
   response: ActionResponse<PaginatedResponse<T>>;
@@ -17,9 +17,9 @@ const DataTable = async <T extends { id: string },>({ response, columns }: Props
             {columns.map((col) => (
               <th 
                 key={col} 
-                className="px-6 py-3 text-left text-xs font-semibold text-mp-text-secondary uppercase tracking-wider whitespace-nowrap"
+                className="px-6 py-3 text-left text-xs font-semibold text-mp-text-secondary tracking-wider whitespace-nowrap uppercase"
               >
-                {capitalize(col)}
+                {toTitleCase(col)}
               </th>
             ))}
           </tr>
