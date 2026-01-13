@@ -148,7 +148,7 @@ const QueryBuilderPanel = ({
 
   return (
     <>
-      <div className="bg-mp-bg-card p-6 mt-4 rounded-lg border border-mp-border shadow-xs">
+      <div className="bg-mp-bg-card p-3 sm:p-6 mt-4 rounded-lg border border-mp-border shadow-xs">
         <div className="flex items-center gap-2 mb-3">
           <span className="text-xs font-semibold text-mp-text-secondary uppercase tracking-wide">
             {tableLabel}
@@ -166,11 +166,11 @@ const QueryBuilderPanel = ({
       </div>
 
       {hasRules && (
-        <div className="flex items-center justify-between mt-4">
+        <div className="flex items-center justify-between mt-3 sm:mt-4 px-1 sm:px-0">
           <button
             type="button"
             onClick={handleAddGroup}
-            className="flex items-center gap-1.5 text-sm font-medium text-mp-text-secondary hover:text-mp-primary transition-colors"
+            className="flex items-center gap-1 sm:gap-1.5 text-sm font-medium text-mp-text-secondary hover:text-mp-primary transition-colors"
           >
             <Plus className="w-4 h-4" />
             <span>Group</span>

@@ -192,22 +192,22 @@ export const FieldSelector = (props: FieldSelectorProps) => {
         type="button"
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
-        className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors rounded-md border bg-white min-w-[120px] justify-between cursor-pointer
+        className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm font-medium transition-colors rounded-md border bg-white min-w-0 sm:min-w-[120px] flex-shrink justify-between cursor-pointer
           ${isOpen 
             ? 'text-mp-primary border-mp-primary' 
             : 'text-mp-text-primary border-mp-border hover:text-mp-primary hover:border-mp-primary'
           }
           ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs font-semibold text-gray-400">Aa</span>
-          <span>{displayLabel}</span>
+        <div className="flex items-center gap-1 sm:gap-1.5 min-w-0">
+          <span className="text-xs font-semibold text-gray-400 hidden sm:inline">Aa</span>
+          <span className="truncate">{displayLabel}</span>
         </div>
-        <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`h-4 w-4 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-mp-border rounded-xl shadow-xl z-50 py-1.5 px-1.5 overflow-hidden animate-in fade-in zoom-in duration-150 max-h-64 overflow-y-auto">
+        <div className="absolute top-full left-0 mt-1 w-48 sm:w-56 bg-white border border-mp-border rounded-xl shadow-xl z-50 py-1.5 px-1.5 overflow-hidden animate-in fade-in zoom-in duration-150 max-h-64 overflow-y-auto">
           {flatOptions.map((opt) => {
             const isSelected = opt.name === value;
             return (
@@ -270,19 +270,19 @@ export const OperatorSelector = (props: OperatorSelectorProps) => {
         type="button"
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
-        className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors rounded-md border bg-white min-w-[80px] justify-between cursor-pointer
+        className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm font-medium transition-colors rounded-md border bg-white min-w-0 sm:min-w-[80px] flex-shrink justify-between cursor-pointer
           ${isOpen 
             ? 'text-mp-primary border-mp-primary' 
             : 'text-mp-text-primary border-mp-border hover:text-mp-primary hover:border-mp-primary'
           }
           ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
-        <span>{displayLabel}</span>
-        <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <span className="truncate">{displayLabel}</span>
+        <ChevronDown className={`h-4 w-4 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-mp-border rounded-xl shadow-xl z-50 py-1.5 px-1.5 overflow-hidden animate-in fade-in zoom-in duration-150 max-h-64 overflow-y-auto">
+        <div className="absolute top-full left-0 mt-1 w-40 sm:w-48 bg-white border border-mp-border rounded-xl shadow-xl z-50 py-1.5 px-1.5 overflow-hidden animate-in fade-in zoom-in duration-150 max-h-64 overflow-y-auto">
           {flatOptions.map((opt) => {
             const isSelected = opt.name === value;
             return (
@@ -347,19 +347,19 @@ export const ValueEditor = (props: ValueEditorProps) => {
           type="button"
           onClick={() => !disabled && setIsOpen(!isOpen)}
           disabled={disabled}
-          className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors rounded-md border bg-white min-w-[100px] justify-between cursor-pointer
+          className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm font-medium transition-colors rounded-md border bg-white min-w-0 sm:min-w-[100px] flex-shrink justify-between cursor-pointer
             ${isOpen 
               ? 'text-mp-primary border-mp-primary' 
               : 'text-mp-text-primary border-mp-border hover:text-mp-primary hover:border-mp-primary'
             }
             ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
-          <span className={selectedOption ? '' : 'text-gray-400'}>{displayLabel}</span>
-          <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+          <span className={`truncate ${selectedOption ? '' : 'text-gray-400'}`}>{displayLabel}</span>
+          <ChevronDown className={`h-4 w-4 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
         </button>
 
         {isOpen && (
-          <div className="absolute top-full left-0 mt-1 w-32 bg-white border border-mp-border rounded-xl shadow-xl z-50 py-1.5 px-1.5 overflow-hidden animate-in fade-in zoom-in duration-150">
+          <div className="absolute top-full left-0 mt-1 w-28 sm:w-32 bg-white border border-mp-border rounded-xl shadow-xl z-50 py-1.5 px-1.5 overflow-hidden animate-in fade-in zoom-in duration-150">
             {BOOLEAN_OPTIONS.map((opt) => {
               const isSelected = opt.value === value;
               return (
@@ -417,7 +417,7 @@ export const ValueEditor = (props: ValueEditorProps) => {
         value={displayValue}
         onChange={handleDateChange}
         disabled={disabled}
-        className="bg-white text-mp-text-primary px-3 py-1.5 rounded-md text-sm font-medium border border-mp-border min-w-[80px] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-mp-primary focus:border-mp-primary transition-colors"
+        className="bg-white text-mp-text-primary px-2 sm:px-3 py-1.5 rounded-md text-sm font-medium border border-mp-border min-w-0 w-full sm:w-auto sm:min-w-[80px] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-mp-primary focus:border-mp-primary transition-colors"
       />
     );
   }
@@ -429,7 +429,7 @@ export const ValueEditor = (props: ValueEditorProps) => {
       onChange={(e) => handleOnChange(e.target.value)}
       disabled={disabled}
       placeholder={fieldData?.placeholder || 'Value'}
-      className="bg-white text-mp-text-primary px-3 py-1.5 rounded-md text-sm font-medium border border-mp-border min-w-[80px] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-mp-primary focus:border-mp-primary transition-colors"
+      className="bg-white text-mp-text-primary px-2 sm:px-3 py-1.5 rounded-md text-sm font-medium border border-mp-border min-w-0 flex-1 sm:flex-initial sm:min-w-[80px] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-mp-primary focus:border-mp-primary transition-colors"
     />
   );
 };

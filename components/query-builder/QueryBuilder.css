@@ -338,3 +338,75 @@
 .ruleGroup .ruleGroup {
   position: relative;
 }
+
+@media (max-width: 640px) {
+  .rule {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.75rem 0;
+  }
+
+  .ruleGroup-body > .rule:first-of-type::before {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 0.25rem;
+  }
+
+  .ruleGroup-body > .betweenRules + .rule,
+  .ruleGroup-body > .inlineCombinator + .rule {
+    padding-left: 0;
+  }
+
+  .ruleGroup-body > .betweenRules,
+  .ruleGroup-body > .inlineCombinator {
+    margin-bottom: 0;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    position: static;
+    z-index: auto;
+    pointer-events: auto;
+  }
+
+  .ruleGroup-body > .betweenRules:has(+ .ruleGroup),
+  .ruleGroup-body > .inlineCombinator:has(+ .ruleGroup) {
+    padding-top: 0.5rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .ruleGroup-body > .betweenRules:has(+ .ruleGroup) + .ruleGroup,
+  .ruleGroup-body > .inlineCombinator:has(+ .ruleGroup) + .ruleGroup {
+    margin-top: 0;
+    margin-left: 0;
+  }
+
+  .ruleGroup .ruleGroup {
+    padding: 0.75rem;
+  }
+
+  .ruleGroup .ruleGroup > .ruleGroup-body::before {
+    margin-bottom: 0.5rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .rule {
+    gap: 0.375rem;
+    padding: 0.5rem 0;
+  }
+
+  .ruleGroup .ruleGroup {
+    padding: 0.5rem;
+  }
+
+  .inline-combinator-button {
+    font-size: 0.8125rem;
+  }
+
+  .ruleGroup-body > .rule:first-of-type::before {
+    font-size: 0.8125rem;
+  }
+
+  .ruleGroup .ruleGroup > .ruleGroup-body::before {
+    font-size: 0.6875rem;
+  }
+}
