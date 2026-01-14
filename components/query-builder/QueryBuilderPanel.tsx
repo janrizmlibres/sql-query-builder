@@ -7,17 +7,12 @@ import { useDebounce } from 'use-debounce';
 import { Plus } from 'lucide-react';
 import { saveQuery } from '@/lib/actions/query.action';
 import { QUERY_CONFIG } from '@/constants';
-import {
-  AddFilterAction,
-  RemoveRuleAction,
-  RemoveGroupAction,
-  InlineCombinatorDropdown,
-  HiddenAddGroup,
-  FieldSelector,
-  OperatorSelector,
-  ValueEditor,
-} from './QueryBuilderControls';
-import './QueryBuilder.css';
+import { capitalize } from '@/lib/utils';
+import { AddFilterAction, RemoveRuleAction, RemoveGroupAction } from './controls/Actions';
+import { InlineCombinatorDropdown } from './controls/InlineCombinatorDropdown';
+import { FieldSelector } from './controls/FieldSelector';
+import { OperatorSelector } from './controls/OperatorSelector';
+import { ValueEditor } from './controls/ValueEditor';
 
 const getOperators = (_fieldName: string, { fieldData }: { fieldData: Field }) => {
   switch (fieldData.datatype) {
@@ -74,7 +69,7 @@ const getOperators = (_fieldName: string, { fieldData }: { fieldData: Field }) =
 
 const controlElements = {
   addRuleAction: AddFilterAction,
-  addGroupAction: HiddenAddGroup,
+  addGroupAction: null,
   removeRuleAction: RemoveRuleAction,
   removeGroupAction: RemoveGroupAction,
   combinatorSelector: InlineCombinatorDropdown,
@@ -91,14 +86,14 @@ const controlElements = {
 
 type Props = {
   fields: Field[];
+  currentTable: string;
   initialQuery?: RuleGroupType | null;
-  currentTable?: string;
 }
   
 const QueryBuilderPanel = ({
   fields, 
-  initialQuery, 
   currentTable,
+  initialQuery, 
 }: Props) => {
   const { queryParam, defaultQuery, debounceTime } = QUERY_CONFIG;
 
@@ -143,7 +138,6 @@ const QueryBuilderPanel = ({
     setQuery(defaultQuery);
   };
 
-  const tableLabel = currentTable ? `All ${currentTable.charAt(0).toUpperCase() + currentTable.slice(1)}` : 'All Users';
   const hasRules = query.rules.length > 0;
 
   return (
@@ -151,7 +145,7 @@ const QueryBuilderPanel = ({
       <div className="bg-mp-bg-card p-3 sm:p-6 mt-4 rounded-lg border border-mp-border shadow-xs">
         <div className="flex items-center gap-2 mb-3">
           <span className="text-xs font-semibold text-mp-text-secondary uppercase tracking-wide">
-            {tableLabel}
+            {`All ${capitalize(currentTable)}`}
           </span>
         </div>
 

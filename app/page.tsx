@@ -22,7 +22,7 @@ export default async function Home({ searchParams }: RouteParams) {
   const columns = model.getColumns();
 
   return (
-    <div className="min-h-screen bg-background text-mp-text-primary pb-20">
+    <div className="min-h-screen pb-20">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-4">
         <TableSelector />
 

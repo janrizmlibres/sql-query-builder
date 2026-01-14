@@ -2,10 +2,8 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #374151;
-  
+
   --primary: #7856ff;
-  --primary-hover: #6340df;
   --bg-page: #f9fafb;
   --bg-card: #ffffff;
   --border-color: #e5e7eb;
@@ -15,24 +13,313 @@
 
 @theme inline {
   --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 
   --color-mp-primary: var(--primary);
-  --color-mp-primary-hover: var(--primary-hover);
   --color-mp-bg-page: var(--bg-page);
   --color-mp-bg-card: var(--bg-card);
   --color-mp-border: var(--border-color);
   --color-mp-text-primary: var(--text-primary);
   --color-mp-text-secondary: var(--text-secondary);
-  
-  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
 }
 
 body {
-  background: var(--bg-page);
+  background: var(--background);
   color: var(--text-primary);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
+}
+
+/* Query Builder Styles */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.queryBuilder {
+  @apply w-full;
+}
+
+.ruleGroup {
+  @apply flex flex-col bg-transparent border-none p-0 m-0;
+}
+
+.ruleGroup .ruleGroup {
+  @apply rounded-lg p-4 my-2 relative;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-card);
+}
+
+.ruleGroup .ruleGroup > .ruleGroup-body::before {
+  @apply flex items-center gap-2 text-xs font-semibold uppercase tracking-wide mb-3;
+  content: 'Group';
+  color: var(--text-secondary);
+}
+
+.ruleGroup-body > .betweenRules:has(+ .ruleGroup),
+.ruleGroup-body > .inlineCombinator:has(+ .ruleGroup) {
+  @apply flex items-start mb-0 pt-3 pb-0 relative z-[1] pointer-events-auto;
+}
+
+.ruleGroup-body > .betweenRules:has(+ .ruleGroup) + .ruleGroup,
+.ruleGroup-body > .inlineCombinator:has(+ .ruleGroup) + .ruleGroup {
+  margin-top: -2rem;
+  margin-left: 2.5rem;
+}
+
+.ruleGroup-header {
+  @apply flex items-center gap-2 mt-2;
+  order: 2;
+}
+
+.ruleGroup-header > .ruleGroup-combinators {
+  display: none !important;
+}
+
+.ruleGroup-body {
+  @apply flex flex-col gap-0;
+  order: 1;
+}
+
+.rule {
+  @apply flex items-center gap-2 py-2;
+}
+
+.ruleGroup-body > .rule:first-of-type::before {
+  @apply text-sm mr-2 font-medium;
+  content: 'where';
+  color: var(--text-secondary);
+}
+
+.ruleGroup-body > .betweenRules,
+.ruleGroup-body > .inlineCombinator {
+  @apply flex items-center pt-2 pb-0 relative z-[100] pointer-events-none;
+  margin-bottom: -2.25rem;
+}
+
+.ruleGroup-body > .betweenRules .inline-combinator-dropdown,
+.ruleGroup-body > .inlineCombinator .inline-combinator-dropdown {
+  @apply pointer-events-auto;
+}
+
+.ruleGroup-body > .betweenRules + .rule,
+.ruleGroup-body > .inlineCombinator + .rule {
+  @apply pl-10;
+}
+
+.rule-fields {
+  @apply appearance-none inline-flex items-center rounded-md text-sm font-medium border-none cursor-pointer transition-colors;
+  background-color: #f3f4f6;
+  color: var(--text-primary);
+  padding: 0.375rem 0.75rem;
+}
+
+.rule-fields:hover {
+  @apply bg-gray-200;
+}
+
+.rule-fields:focus {
+  @apply outline-2 outline-offset-2 outline-gray-500;
+}
+
+.rule-operators {
+  @apply appearance-none rounded-md text-sm font-medium border-none cursor-pointer transition-colors;
+  background-color: #f3f4f6;
+  color: var(--text-primary);
+  padding: 0.375rem 0.75rem;
+}
+
+.rule-operators:hover {
+  @apply bg-gray-200;
+}
+
+.rule-operators:focus {
+  @apply outline-2 outline-offset-2 outline-gray-500;
+}
+
+.rule-value {
+  @apply rounded-md text-sm font-medium border-none;
+  background-color: #f3f4f6;
+  color: var(--text-primary);
+  padding: 0.375rem 0.75rem;
+  min-width: 40px;
+}
+
+.rule-value::placeholder {
+  @apply text-gray-400;
+}
+
+.rule-value:focus {
+  @apply outline-2 outline-offset-2 outline-gray-500;
+}
+
+.rule-remove {
+  @apply bg-transparent border-none p-1.5 cursor-pointer transition-colors flex items-center justify-center rounded;
+  color: var(--text-secondary);
+}
+
+.rule-remove:hover {
+  @apply text-red-500 bg-red-50;
+}
+
+.rule-drag-handle,
+.ruleGroup-drag-handle,
+.queryBuilder-dragHandle {
+  display: none !important;
+}
+
+.inline-combinator-dropdown {
+  @apply relative inline-flex items-center;
+}
+
+.inline-combinator-button {
+  @apply text-sm font-medium bg-transparent border-none p-0 mr-2 cursor-pointer transition-colors;
+  color: var(--text-secondary);
+}
+
+.inline-combinator-button:hover {
+  color: var(--primary);
+}
+
+.inline-combinator-menu {
+  @apply fixed min-w-20 bg-white rounded-lg z-[99999] p-1;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.15s ease;
+}
+
+.inline-combinator-option {
+  @apply block w-full text-left rounded-md bg-transparent border-none cursor-pointer transition-all;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.inline-combinator-option:hover {
+  color: var(--primary);
+  background-color: rgba(99, 102, 241, 0.05);
+}
+
+.inline-combinator-option.selected {
+  @apply text-white;
+  background-color: var(--primary);
+}
+
+.ruleGroup-addRule {
+  @apply bg-transparent border-none inline-flex items-center gap-1.5 text-sm font-medium py-2 cursor-pointer transition-colors;
+  color: var(--text-secondary);
+}
+
+.ruleGroup-addRule:hover {
+  color: var(--primary);
+}
+
+.ruleGroup-addGroup {
+  display: none !important;
+}
+
+.ruleGroup-remove {
+  @apply bg-transparent border-none p-1.5 cursor-pointer transition-colors flex items-center justify-center rounded absolute top-2 right-2;
+  color: var(--text-secondary);
+}
+
+.ruleGroup-remove:hover {
+  @apply text-red-500 bg-red-50;
+}
+
+.ruleGroup-notToggle {
+  display: none !important;
+}
+
+.rule-cloneRule,
+.ruleGroup-cloneGroup {
+  display: none !important;
+}
+
+.rule-lock,
+.ruleGroup-lock {
+  display: none !important;
+}
+
+.rule-shiftActions,
+.ruleGroup-shiftActions {
+  display: none !important;
+}
+
+.rule-valueSource {
+  display: none !important;
+}
+
+.ruleGroup .ruleGroup {
+  @apply relative;
+}
+
+/* Query Builder - Responsive Styles */
+
+@media (max-width: 640px) {
+  .rule {
+    @apply flex-wrap gap-2 py-3;
+  }
+
+  .ruleGroup-body > .rule:first-of-type::before {
+    @apply w-full mr-0 mb-1;
+  }
+
+  .ruleGroup-body > .betweenRules + .rule,
+  .ruleGroup-body > .inlineCombinator + .rule {
+    @apply pl-0;
+  }
+
+  .ruleGroup-body > .betweenRules,
+  .ruleGroup-body > .inlineCombinator {
+    @apply mb-0 py-1 static z-auto pointer-events-auto;
+  }
+
+  .ruleGroup-body > .betweenRules:has(+ .ruleGroup),
+  .ruleGroup-body > .inlineCombinator:has(+ .ruleGroup) {
+    @apply pt-2 pb-1;
+  }
+
+  .ruleGroup-body > .betweenRules:has(+ .ruleGroup) + .ruleGroup,
+  .ruleGroup-body > .inlineCombinator:has(+ .ruleGroup) + .ruleGroup {
+    @apply mt-0 ml-0;
+  }
+
+  .ruleGroup .ruleGroup {
+    @apply p-3;
+  }
+
+  .ruleGroup .ruleGroup > .ruleGroup-body::before {
+    @apply mb-2;
+  }
+}
+
+@media (max-width: 380px) {
+  .rule {
+    padding: 0.5rem 0;
+    gap: 0.375rem;
+  }
+
+  .ruleGroup .ruleGroup {
+    @apply p-2;
+  }
+
+  .inline-combinator-button {
+    font-size: 0.8125rem;
+  }
+
+  .ruleGroup-body > .rule:first-of-type::before {
+    font-size: 0.8125rem;
+  }
+
+  .ruleGroup .ruleGroup > .ruleGroup-body::before {
+    font-size: 0.6875rem;
+  }
 }

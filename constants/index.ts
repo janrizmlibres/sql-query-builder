@@ -20,3 +20,10 @@ export const QUERY_CONFIG: QueryConfig = {
   },
   debounceTime: 500,
 }
+
+export const VALUE_LESS_OPERATORS = ['null', 'notNull'];
+
+export const BOOLEAN_OPTIONS = [
+  { value: true, label: 'True' },
+  { value: false, label: 'False' },
+];
