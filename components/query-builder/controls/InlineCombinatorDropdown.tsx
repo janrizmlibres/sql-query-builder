@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useMemo, useCallback, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { CombinatorSelectorProps } from 'react-querybuilder';
 
 export const InlineCombinatorDropdown = (props: CombinatorSelectorProps) => {
@@ -9,21 +10,26 @@ export const InlineCombinatorDropdown = (props: CombinatorSelectorProps) => {
     const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
     const containerRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
+    const menuRef = useRef<HTMLDivElement>(null);
   
     const pathKey = useMemo(() => path.join('-'), [path]);
   
     const flatOptions = useMemo(() => (options.filter((opt) => 'name' in opt)), [options]);
   
     const selectedOption = flatOptions.find((opt) => opt.name === value);
-    const displayLabel = selectedOption?.label || (value ?? '').toLowerCase();
+    const displayLabel = selectedOption?.label.toLowerCase() || (value ?? '').toLowerCase();
   
     useEffect(() => {
       const handleClickOutside = (event: MouseEvent) => {
-        if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        const target = event.target as Node;
+        const isOutsideContainer = containerRef.current && !containerRef.current.contains(target);
+        const isOutsideMenu = menuRef.current && !menuRef.current.contains(target);
+        
+        if (isOutsideContainer && isOutsideMenu) {
           setIsOpen(false);
         }
       };
-  
+
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
@@ -62,8 +68,9 @@ export const InlineCombinatorDropdown = (props: CombinatorSelectorProps) => {
           {displayLabel}
         </button>
   
-        {isOpen && (
+        {isOpen && createPortal(
           <div 
+            ref={menuRef}
             className="inline-combinator-menu"
             style={{ top: menuPosition.top, left: menuPosition.left }}
           >
@@ -77,11 +84,12 @@ export const InlineCombinatorDropdown = (props: CombinatorSelectorProps) => {
                   onClick={(e) => handleSelect(e, opt.name)}
                   className={`inline-combinator-option ${isSelected ? 'selected' : ''}`}
                 >
-                  {opt.label}
+                  {opt.label.toLowerCase()}
                 </button>
               );
             })}
-          </div>
+          </div>,
+          document.body
         )}
       </div>
     );
