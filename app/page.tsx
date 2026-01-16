@@ -26,7 +26,6 @@ export default async function Home({ searchParams }: RouteParams) {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-4">
         <TableSelector />
 
-        {/* Reports / Query Area */}
         <QueryBuilderArea
           dataCount={response.data?.items.length || 0}
           fields={fields}
@@ -34,10 +33,7 @@ export default async function Home({ searchParams }: RouteParams) {
           currentTable={currentTable}
         />
 
-        {/* Data Table Area */}
-        <div className="bg-mp-bg-card rounded-lg border border-mp-border shadow-sm overflow-hidden">
-           <DataTable response={response} columns={columns} />
-        </div>
+        <DataTable response={response} columns={columns} />
       </main>
     </div>
   );

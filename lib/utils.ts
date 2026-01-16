@@ -1,3 +1,8 @@
+/**
+ * ALl utility/helper functions for the application. Any reusable block of code should be
+ * placed here.
+ */
+
 export const capitalize = (str: string) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };

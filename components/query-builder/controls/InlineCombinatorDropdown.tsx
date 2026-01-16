@@ -6,14 +6,15 @@ import { CombinatorSelectorProps } from 'react-querybuilder';
 
 export const InlineCombinatorDropdown = (props: CombinatorSelectorProps) => {
     const { value, handleOnChange, options, disabled, path } = props;
+
     const [isOpen, setIsOpen] = useState(false);
     const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+
     const containerRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
     const menuRef = useRef<HTMLDivElement>(null);
   
     const pathKey = useMemo(() => path.join('-'), [path]);
-  
     const flatOptions = useMemo(() => (options.filter((opt) => 'name' in opt)), [options]);
   
     const selectedOption = flatOptions.find((opt) => opt.name === value);

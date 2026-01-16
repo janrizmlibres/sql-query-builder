@@ -1,3 +1,7 @@
+/**
+ * Standard error class for HTTP requests. Used to standardize error responses across
+ * the application for consistency.
+ */
 export class RequestError extends Error {
   statusCode: number;
   errors?: Record<string, string[]>;
@@ -14,6 +18,9 @@ export class RequestError extends Error {
   }
 }
 
+/**
+ * Error class for 404 Not Found responses.
+ */
 export class NotFoundError extends RequestError {
   constructor(resource: string) {
     super(404, `${resource} not found.`);

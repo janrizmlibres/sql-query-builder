@@ -29,8 +29,8 @@ const QueryBuilderActions = ({ dataCount, showFilter, setShowFilter }: Props) =>
             onClick={() => setShowFilter((prev: boolean) => !prev)}
             className="flex items-center gap-2 px-3 py-1.5 text-sm font-semibold text-mp-text-primary hover:text-mp-primary hover:bg-mp-primary/5 rounded-lg transition-all cursor-pointer"
         >
-            <Filter className="w-4 h-4" />
-            <span>{showFilter ? 'Hide' : 'Show'} Filter</span>
+          <Filter className="w-4 h-4" />
+          <span>{showFilter ? 'Hide' : 'Show'} Filter</span>
         </button>
       </div>
     </div>

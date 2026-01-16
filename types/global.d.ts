@@ -1,3 +1,6 @@
+/**
+ * Standard response type for all data fetching actions.
+ */
 type ActionResponse<T = null> = {
   success: boolean;
   data?: T;
@@ -8,6 +11,9 @@ type ActionResponse<T = null> = {
   status?: number;
 };
 
+/**
+ * Standard error response type for all unsuccessful requests.
+ */
 type ErrorResponse = ActionResponse<undefined> & { success: false };
 
 interface RouteParams {

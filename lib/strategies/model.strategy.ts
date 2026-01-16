@@ -20,6 +20,14 @@ const TEXT_OPERATORS_WITHOUT_NULL_AND_NOT_NULL = [
   ),
 ]
 
+const NUMBER_OPERATORS_WITHOUT_NULL_AND_NOT_NULL = [
+  ...defaultOperators.filter(op => ['=', '!='].includes(op.name)),
+  { name: '<', label: 'less than' },
+  { name: '<=', label: 'less than or equal to' },
+  { name: '>', label: 'greater than' },
+  { name: '>=', label: 'greater than or equal to' },
+]
+
 const getValidatedFields = (fields: Field[], fieldsToValidate: string[]) => {
   return fields.map(field => {
     if (!fieldsToValidate.includes(field.name)) return field;
@@ -100,13 +108,7 @@ class CompanyModel implements ModelStrategy<Company> {
         case "employeeCount":
           return {
             ...field,
-            operators: [
-              ...defaultOperators.filter(op => ['=', '!='].includes(op.name)),
-              { name: '<', label: 'less than' },
-              { name: '<=', label: 'less than or equal to' },
-              { name: '>', label: 'greater than' },
-              { name: '>=', label: 'greater than or equal to' },
-            ],
+            operators: NUMBER_OPERATORS_WITHOUT_NULL_AND_NOT_NULL,
           }
         default:
           return field;
@@ -137,6 +139,11 @@ class ProductModel implements ModelStrategy<Product> {
           return {
             ...field,
             operators: TEXT_OPERATORS_WITHOUT_NULL_AND_NOT_NULL,
+          }
+        case "price":
+          return {
+            ...field,
+            operators: NUMBER_OPERATORS_WITHOUT_NULL_AND_NOT_NULL,
           }
         default:
           return field;

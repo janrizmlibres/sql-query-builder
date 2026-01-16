@@ -10,7 +10,7 @@ const DataTable = async <T extends { id: string },>({ response, columns }: Props
   const { items } = data || {};
 
   return (
-    <div className="overflow-x-auto">
+    <div className="bg-mp-bg-card rounded-lg border border-mp-border shadow-sm overflow-x-auto overflow-hidden">
       <table className="min-w-full divide-y divide-mp-border">
         <thead className="bg-mp-bg-page">
           <tr>

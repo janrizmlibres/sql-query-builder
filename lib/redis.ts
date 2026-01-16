@@ -5,6 +5,15 @@ const globalForRedis = global as unknown as {
   redis: Redis;
 };
 
+/**
+ * Creates a Redis client and sets up error handling.
+ * 
+ * We use Redis to store queries for 3 days.
+ * This enables us to store query state in the URL,
+ * which is suitable for server-rendered applications.
+ * 
+ * @returns Redis client
+ */
 const createRedisClient = (): Redis => {
   const client = new Redis(process.env.REDIS_URL || "redis://localhost:6379", {
     maxRetriesPerRequest: 3,

@@ -54,6 +54,7 @@ export const FieldSelector = (props: FieldSelectorProps) => {
           <div className="absolute top-full left-0 mt-1 w-48 sm:w-56 bg-white border border-mp-border rounded-xl shadow-xl z-50 py-1.5 px-1.5 overflow-hidden animate-in fade-in zoom-in duration-150 max-h-64 overflow-y-auto">
             {flatOptions.map((opt) => {
               const isSelected = opt.name === value;
+              
               return (
                 <button
                   key={opt.name}
