@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ChevronDown } from 'lucide-react';
-import { QUERY_CONFIG, TABLE_CONFIG } from '@/constants';
+import { PAGINATION_CONFIG, QUERY_CONFIG, TABLE_CONFIG } from '@/constants';
 import { capitalize } from '@/lib/utils';
 import { useRef, useState, useEffect } from 'react';
 
@@ -35,6 +35,7 @@ const TableSelector = () => {
 
     if (newTable !== lastTable.current) {
       params.delete(QUERY_CONFIG.queryParam);
+      params.delete(PAGINATION_CONFIG.pageParam);
     }
 
     lastTable.current = newTable;
