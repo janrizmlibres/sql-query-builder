@@ -77,6 +77,7 @@ const DataTable = async <T extends { id: string },>({ response, columns, page, s
               href={buildPageUrl(searchParams, page - 1)}
               className="p-2 rounded-md border border-mp-border bg-white text-mp-text-primary hover:text-mp-primary hover:border-mp-primary transition-colors"
               aria-label="Previous page"
+              scroll={false}
             >
               <ChevronLeft className="w-4 h-4" />
             </Link>
@@ -90,6 +91,7 @@ const DataTable = async <T extends { id: string },>({ response, columns, page, s
             <Link
               href={buildPageUrl(searchParams, page - 1)}
               className="px-3 py-1.5 min-w-[32px] text-sm font-semibold rounded-md border border-mp-border bg-white text-mp-text-primary hover:text-mp-primary hover:border-mp-primary transition-colors text-center"
+              scroll={false}
             >
               {page - 1}
             </Link>
@@ -103,6 +105,7 @@ const DataTable = async <T extends { id: string },>({ response, columns, page, s
             <Link
               href={buildPageUrl(searchParams, page + 1)}
               className="px-3 py-1.5 min-w-[32px] text-sm font-semibold rounded-md border border-mp-border bg-white text-mp-text-primary hover:text-mp-primary hover:border-mp-primary transition-colors text-center"
+              scroll={false}
             >
               {page + 1}
             </Link>
@@ -113,6 +116,7 @@ const DataTable = async <T extends { id: string },>({ response, columns, page, s
               href={buildPageUrl(searchParams, page + 1)}
               className="p-2 rounded-md border border-mp-border bg-white text-mp-text-primary hover:text-mp-primary hover:border-mp-primary transition-colors"
               aria-label="Next page"
+              scroll={false}
             >
               <ChevronRight className="w-4 h-4" />
             </Link>

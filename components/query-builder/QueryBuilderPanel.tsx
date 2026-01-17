@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { useRouter } from 'nextjs-toploader/app';
 import { Field, QueryBuilder, RuleGroupType, defaultOperators, add } from 'react-querybuilder';
 import { useDebounce } from 'use-debounce';
 import { Plus } from 'lucide-react';
@@ -100,7 +101,7 @@ const QueryBuilderPanel = ({
   const [query, setQuery] = useState<RuleGroupType>(initialQuery || defaultQuery);
   const [debouncedQuery] = useDebounce(query, debounceTime);
 
-  const lastQuery = useRef<RuleGroupType | null>(null);
+  const lastQuery = useRef<RuleGroupType | null>(initialQuery || defaultQuery);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -112,11 +113,14 @@ const QueryBuilderPanel = ({
       lastQuery.current = debouncedQuery;
 
       const params = new URLSearchParams(searchParams.toString());
+      const currentQueryHash = params.get(queryParam);
 
       if (debouncedQuery.rules.length === 0) {
+        if (!currentQueryHash) return;
         params.delete(queryParam);
       } else {
         const hash = await saveQuery(debouncedQuery);
+        if (hash === currentQueryHash) return;
         params.set(queryParam, hash);
       }
 

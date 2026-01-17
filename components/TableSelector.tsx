@@ -1,10 +1,11 @@
 'use client';
 
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { useRef, useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { useRouter } from 'nextjs-toploader/app';
 import { PAGINATION_CONFIG, QUERY_CONFIG, TABLE_CONFIG } from '@/constants';
 import { capitalize } from '@/lib/utils';
-import { useRef, useState, useEffect } from 'react';
 
 const TableSelector = () => {
   const [isOpen, setIsOpen] = useState(false);
