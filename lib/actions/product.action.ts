@@ -4,13 +4,15 @@ import { Prisma, Product } from "@/app/generated/prisma/client";
 import prisma from "@/lib/prisma";
 import handleError from "@/lib/handlers/error";
 import { Field, RuleGroupType, formatQuery } from "react-querybuilder";
+import { PAGINATION_CONFIG } from "@/constants";
 
 export const getProducts = async (
   sqlQuery?: RuleGroupType | null,
   params?: PaginatedSearchParams,
   fields?: Field[]
 ): Promise<ActionResponse<PaginatedResponse<Product>>> => {
-  const { page = 1, pageSize = 10, query, filter } = params || {};
+  const { defaultPage, defaultPageSize } = PAGINATION_CONFIG;
+  const { page = defaultPage, pageSize = defaultPageSize, query, filter } = params || {};
   const skip = (page - 1) * pageSize;
   const take = pageSize;
 
@@ -54,6 +56,24 @@ export const getProducts = async (
       success: true,
       data: { items: JSON.parse(JSON.stringify(products)), isNext },
     };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+};
+
+export const getProductsCount = async (sqlQuery?: RuleGroupType | null): Promise<ActionResponse<DataCountResponse>> => {
+  let where: Prisma.ProductWhereInput = {};
+  
+  if (sqlQuery) {
+    where = formatQuery(sqlQuery, { 
+      format: 'prisma', 
+      parseNumbers: true, 
+    });
+  }
+
+  try {
+    const count = await prisma.product.count({ where });
+    return { success: true, data: { count } };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }

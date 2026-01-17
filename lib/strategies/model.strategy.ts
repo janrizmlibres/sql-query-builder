@@ -1,6 +1,6 @@
-import { getUsers } from "@/lib/actions/user.action";
-import { getCompanies } from "@/lib/actions/company.action";
-import { getProducts } from "@/lib/actions/product.action";
+import { getUsers, getUsersCount } from "@/lib/actions/user.action";
+import { getCompanies, getCompaniesCount } from "@/lib/actions/company.action";
+import { getProducts, getProductsCount } from "@/lib/actions/product.action";
 import { Company, Product, User } from "@/app/generated/prisma/client";
 import { defaultOperators, Field, RuleGroupType, RuleType, ValidationResult } from "react-querybuilder";
 import { getTableFields } from "../actions/schema.action";
@@ -57,6 +57,9 @@ export interface ModelStrategy<T> {
     params?: PaginatedSearchParams,
     fields?: Field[]
   ) => Promise<ActionResponse<PaginatedResponse<T>>>;
+  fetchDataCount: (
+    sqlQuery?: RuleGroupType | null
+  ) => Promise<ActionResponse<DataCountResponse>>;
   getColumns: () => (keyof T)[];
   getQueryFields: (options?: GetQueryFieldsOptions) => Promise<Field[]>;
   getQueryFieldsWithValidators: (fields: Field[]) => Field[];
@@ -64,6 +67,7 @@ export interface ModelStrategy<T> {
 
 class UserModel implements ModelStrategy<User> {
   fetchData = getUsers;
+  fetchDataCount = getUsersCount;
   getColumns = (): (keyof User)[] => ["name", "email", "age", "gender", "isAdmin", "createdAt", "updatedAt"];
   getQueryFields = async (options?: GetQueryFieldsOptions) => {
     const fields = await getTableFields("User");
@@ -94,6 +98,7 @@ class UserModel implements ModelStrategy<User> {
 
 class CompanyModel implements ModelStrategy<Company> {
   fetchData = getCompanies;
+  fetchDataCount = getCompaniesCount;
   getColumns = (): (keyof Company)[] => ["name", "industry", "country", "employeeCount", "isActive", "createdAt", "updatedAt"];
   getQueryFields = async (options?: GetQueryFieldsOptions) => {
     const fields = await getTableFields("Company");
@@ -129,6 +134,7 @@ class CompanyModel implements ModelStrategy<Company> {
 
 class ProductModel implements ModelStrategy<Product> {
   fetchData = getProducts;
+  fetchDataCount = getProductsCount;
   getColumns = (): (keyof Product)[] => ["name", "price", "description", "createdAt", "updatedAt"];
   getQueryFields = async (options?: GetQueryFieldsOptions) => {
     const fields = await getTableFields("Product");

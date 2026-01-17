@@ -27,3 +27,9 @@ export const BOOLEAN_OPTIONS = [
   { value: true, label: 'True' },
   { value: false, label: 'False' },
 ];
+
+export const PAGINATION_CONFIG = {
+  pageParam: 'page',
+  defaultPage: 1,
+  defaultPageSize: 5,
+};

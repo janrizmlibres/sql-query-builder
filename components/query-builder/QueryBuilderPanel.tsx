@@ -6,7 +6,7 @@ import { Field, QueryBuilder, RuleGroupType, defaultOperators, add } from 'react
 import { useDebounce } from 'use-debounce';
 import { Plus } from 'lucide-react';
 import { saveQuery } from '@/lib/actions/query.action';
-import { QUERY_CONFIG } from '@/constants';
+import { PAGINATION_CONFIG, QUERY_CONFIG } from '@/constants';
 import { capitalize } from '@/lib/utils';
 import { AddFilterAction, RemoveRuleAction, RemoveGroupAction } from './controls/Actions';
 import { InlineCombinatorDropdown } from './controls/InlineCombinatorDropdown';
@@ -120,6 +120,7 @@ const QueryBuilderPanel = ({
         params.set(queryParam, hash);
       }
 
+      params.delete(PAGINATION_CONFIG.pageParam);
       router.push(`${pathname}?${params.toString()}`, { scroll: false });
     };
 

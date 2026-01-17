@@ -1,14 +1,18 @@
 import QueryBuilderArea from "@/components/query-builder/QueryBuilderArea";
 import TableSelector from "@/components/TableSelector";
 import DataTable from "@/components/DataTable";
-import { TABLE_CONFIG } from "@/constants";
+import { PAGINATION_CONFIG, TABLE_CONFIG } from "@/constants";
 import { ModelFactory } from "@/lib/strategies/model.strategy";
 import { getQuery } from "@/lib/actions/query.action";
 
 export default async function Home({ searchParams }: RouteParams) {
   // Use URL state management for table name. Useful for keeping this as a server component.
   const { defaultTable } = TABLE_CONFIG;
-  const { table: currentTable = defaultTable, q: hash } = await searchParams;
+  const { defaultPage } = PAGINATION_CONFIG;
+
+  const params = await searchParams;
+  const { table: currentTable = defaultTable, q: hash } = params;
+  const page = Number(params.page) || defaultPage;
 
   const model = ModelFactory.getModel(currentTable);
 
@@ -18,8 +22,12 @@ export default async function Home({ searchParams }: RouteParams) {
   ]);
 
   const fieldsWithValidators = model.getQueryFieldsWithValidators(fields);
-  const response = await model.fetchData(query, undefined, fieldsWithValidators);
   const columns = model.getColumns();
+
+  const [response, dataCount] = await Promise.all([
+    model.fetchData(query, { page }, fieldsWithValidators),
+    model.fetchDataCount(query),
+  ]);
 
   return (
     <div className="min-h-screen pb-20">
@@ -27,13 +35,18 @@ export default async function Home({ searchParams }: RouteParams) {
         <TableSelector />
 
         <QueryBuilderArea
-          dataCount={response.data?.items.length || 0}
+          dataCount={dataCount.data?.count || 0}
           fields={fields}
           initialQuery={query}
           currentTable={currentTable}
         />
 
-        <DataTable response={response} columns={columns} />
+        <DataTable
+          response={response}
+          columns={columns}
+          page={page}
+          searchParams={params}
+        />
       </main>
     </div>
   );

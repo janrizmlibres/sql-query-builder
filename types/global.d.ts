@@ -16,11 +16,14 @@ type ActionResponse<T = null> = {
  */
 type ErrorResponse = ActionResponse<undefined> & { success: false };
 
+interface SearchParams {
+  table?: string;
+  q?: string;
+  page?: string;
+}
+
 interface RouteParams {
-  searchParams: Promise<{
-    table?: string;
-    q?: string;
-  }>;
+  searchParams: Promise<SearchParams>;
 }
 
 interface PaginatedSearchParams {
@@ -34,4 +37,8 @@ interface PaginatedSearchParams {
 interface PaginatedResponse<T> {
   items: T[];
   isNext: boolean;
+}
+
+interface DataCountResponse {
+  count: number;
 }

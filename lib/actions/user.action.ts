@@ -4,13 +4,15 @@ import { Prisma, User } from "@/app/generated/prisma/client";
 import prisma from "@/lib/prisma";
 import handleError from "@/lib/handlers/error";
 import { Field, RuleGroupType, formatQuery } from "react-querybuilder";
+import { PAGINATION_CONFIG } from "@/constants";
 
 export const getUsers = async (
   sqlQuery?: RuleGroupType | null,
   params?: PaginatedSearchParams,
   fields?: Field[]
 ): Promise<ActionResponse<PaginatedResponse<User>>> => {
-  const { page = 1, pageSize = 10, query, filter } = params || {};
+  const { defaultPage, defaultPageSize } = PAGINATION_CONFIG;
+  const { page = defaultPage, pageSize = defaultPageSize, query, filter } = params || {};
   const skip = (page - 1) * pageSize;
   const take = pageSize;
 
@@ -54,6 +56,24 @@ export const getUsers = async (
       success: true,
       data: { items: JSON.parse(JSON.stringify(users)), isNext },
     };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+};
+
+export const getUsersCount = async (sqlQuery?: RuleGroupType | null): Promise<ActionResponse<DataCountResponse>> => {
+  let where: Prisma.UserWhereInput = {};
+  
+  if (sqlQuery) {
+    where = formatQuery(sqlQuery, {
+      format: 'prisma',
+      parseNumbers: true,
+    });
+  }
+
+  try {
+    const count = await prisma.user.count({ where });
+    return { success: true, data: { count } };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }

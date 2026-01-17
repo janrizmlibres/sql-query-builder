@@ -3,6 +3,8 @@
  * placed here.
  */
 
+import { PAGINATION_CONFIG } from "@/constants";
+
 export const capitalize = (str: string) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
@@ -22,3 +24,18 @@ export const formatDate = (date: string) => {
     minute: '2-digit'
   }).format(new Date(date));
 };
+
+export const buildPageUrl = (
+  searchParams: SearchParams,
+  newPage: number,
+) => {
+  const { pageParam } = PAGINATION_CONFIG;
+  const params = new URLSearchParams();
+
+  Object.entries(searchParams).forEach(([key, value]) => {
+    if (value) params.set(key, value);
+  });
+
+  params.set(pageParam, String(newPage));
+  return `/?${params.toString()}`;
+}

@@ -1,13 +1,22 @@
-import { toTitleCase, formatDate } from "@/lib/utils";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { PAGINATION_CONFIG } from "@/constants";
+import { toTitleCase, formatDate, buildPageUrl } from "@/lib/utils";
 
 type Props<T> = {
   response: ActionResponse<PaginatedResponse<T>>;
   columns: string[];
+  page: number;
+  searchParams: SearchParams;
 }
 
-const DataTable = async <T extends { id: string },>({ response, columns }: Props<T>) => {
+const DataTable = async <T extends { id: string },>({ response, columns, page, searchParams }: Props<T>) => {
   const { success, error, data } = response;
-  const { items } = data || {};
+  const { items = [], isNext } = data || {};
+  
+  const hasItems = items.length > 0;
+
+  const { defaultPage } = PAGINATION_CONFIG;
 
   return (
     <div className="bg-mp-bg-card rounded-lg border border-mp-border shadow-sm overflow-x-auto overflow-hidden">
@@ -25,7 +34,7 @@ const DataTable = async <T extends { id: string },>({ response, columns }: Props
           </tr>
         </thead>
         <tbody className="bg-mp-bg-card divide-y divide-mp-border">
-          {(!success || !items || items.length === 0) ? (
+          {(!success || !hasItems) ? (
             <tr>
               <td colSpan={columns.length} className="px-6 py-12 text-center">
                 {!success ? (
@@ -60,6 +69,60 @@ const DataTable = async <T extends { id: string },>({ response, columns }: Props
           )}
         </tbody>
       </table>
+
+      {success && hasItems && (
+        <div className="flex items-center justify-center gap-2 px-6 py-4 border-t border-mp-border bg-mp-bg-page">
+          {page > defaultPage ? (
+            <Link
+              href={buildPageUrl(searchParams, page - 1)}
+              className="p-2 rounded-md border border-mp-border bg-white text-mp-text-primary hover:text-mp-primary hover:border-mp-primary transition-colors"
+              aria-label="Previous page"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Link>
+          ) : (
+            <span className="p-2 rounded-md border border-mp-border bg-mp-bg-page text-mp-text-secondary cursor-not-allowed">
+              <ChevronLeft className="w-4 h-4" />
+            </span>
+          )}
+
+          {page > defaultPage && (
+            <Link
+              href={buildPageUrl(searchParams, page - 1)}
+              className="px-3 py-1.5 min-w-[32px] text-sm font-semibold rounded-md border border-mp-border bg-white text-mp-text-primary hover:text-mp-primary hover:border-mp-primary transition-colors text-center"
+            >
+              {page - 1}
+            </Link>
+          )}
+
+          <span className="px-3 py-1.5 min-w-[32px] text-sm font-semibold rounded-md border border-mp-primary bg-mp-primary text-white text-center">
+            {page}
+          </span>
+
+          {isNext && (
+            <Link
+              href={buildPageUrl(searchParams, page + 1)}
+              className="px-3 py-1.5 min-w-[32px] text-sm font-semibold rounded-md border border-mp-border bg-white text-mp-text-primary hover:text-mp-primary hover:border-mp-primary transition-colors text-center"
+            >
+              {page + 1}
+            </Link>
+          )}
+
+          {isNext ? (
+            <Link
+              href={buildPageUrl(searchParams, page + 1)}
+              className="p-2 rounded-md border border-mp-border bg-white text-mp-text-primary hover:text-mp-primary hover:border-mp-primary transition-colors"
+              aria-label="Next page"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </Link>
+          ) : (
+            <span className="p-2 rounded-md border border-mp-border bg-mp-bg-page text-mp-text-secondary cursor-not-allowed">
+              <ChevronRight className="w-4 h-4" />
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 };

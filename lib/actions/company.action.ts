@@ -4,13 +4,15 @@ import { Prisma, Company } from "@/app/generated/prisma/client";
 import prisma from "@/lib/prisma";
 import handleError from "@/lib/handlers/error";
 import { Field, RuleGroupType, formatQuery } from "react-querybuilder";
+import { PAGINATION_CONFIG } from "@/constants";
 
 export const getCompanies = async (
   sqlQuery?: RuleGroupType | null,
   params?: PaginatedSearchParams,
   fields?: Field[]
 ): Promise<ActionResponse<PaginatedResponse<Company>>> => {
-  const { page = 1, pageSize = 10, query, filter } = params || {};
+  const { defaultPage, defaultPageSize } = PAGINATION_CONFIG;
+  const { page = defaultPage, pageSize = defaultPageSize, query, filter } = params || {};
   const skip = (page - 1) * pageSize;
   const take = pageSize;
 
@@ -55,6 +57,24 @@ export const getCompanies = async (
       success: true,
       data: { items: JSON.parse(JSON.stringify(companies)), isNext },
     };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+};
+
+export const getCompaniesCount = async (sqlQuery?: RuleGroupType | null): Promise<ActionResponse<DataCountResponse>> => {
+  let where: Prisma.CompanyWhereInput = {};
+  
+  if (sqlQuery) {
+    where = formatQuery(sqlQuery, { 
+      format: 'prisma', 
+      parseNumbers: true, 
+    });
+  }
+
+  try {
+    const count = await prisma.company.count({ where });
+    return { success: true, data: { count } };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
